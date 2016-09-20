@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"module": "commonjs",
+		"outDir": "dist",
+		"rootDir": "src",
+		"sourceMap": true,
+		"inlineSources": true,
+		"target": "es5"
+	},
+	"files": [
+		"src/nippy.ts",
+		"src/test/index.ts"
+	],
+	"compileOnSave": false
+}
