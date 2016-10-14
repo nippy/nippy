@@ -3,16 +3,22 @@
 		"declaration": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"module": "commonjs",
+		"module": "es6",
+		"moduleResolution": "node",
 		"outDir": "dist",
-		"rootDir": "src",
+		"rootDirs": [
+			".",
+			"src",
+			"test"
+		],
 		"sourceMap": true,
 		"inlineSources": true,
-		"target": "es5"
+		"strictNullChecks": true,
+		"target": "es6"
 	},
 	"files": [
 		"src/nippy.ts",
-		"src/test/index.ts"
+		"test/index.ts"
 	],
 	"compileOnSave": false
 }

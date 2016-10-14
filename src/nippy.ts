@@ -3,10 +3,11 @@ import * as compression from "compression";
 import * as cors from "cors";
 import * as express from "express";
 import * as helmet from "helmet";
-import { camelcase, merge } from "lodash";
+import { camelCase, merge } from "lodash";
 import * as morgan from "morgan";
+import * as winston from "winston";
 
-import { getLogger } from "./logger";
+import { getLogger, LoggerConfig } from "./logger";
 
 const KNOWN_MIDDLEWARE = {
 	bodyParser: bodyParser.json,
@@ -16,7 +17,17 @@ const KNOWN_MIDDLEWARE = {
 	morgan: morgan
 };
 
-const DEFAULT_CONFIG: NippyConfig = {
+export interface NippyConfig {
+	logger?: null|LoggerConfig;
+
+	// bodyParser: boolean|"json"|"raw"|"text"|"urlencoded";
+	// TODO: Support other body parsers?
+
+	[middleware: string]: any;
+}
+
+const DEFAULT_NIPPY_CONFIG: NippyConfig = {
+	logger: null,
 	bodyParser: null,
 	compression: null,
 	cors: null,
@@ -27,30 +38,34 @@ const DEFAULT_CONFIG: NippyConfig = {
 	]
 };
 
-export interface NippyConfig {
-	[middleware: string]: any;
-}
-
 export function nippy(config: NippyConfig) : express.Application {
 	const app = express();
-	const logger = "";
 
-	// Temporary config has in order to map camel case.
+	// Temporary config in order to map camel case.
 	let _config = {};
 	for (let key in config) {
-		_config[camelcase(key)] = config[key];
+		_config[camelCase(key)] = config[key];
 	}
 
 	// Merge provided config with defaults.
-	config = merge(DEFAULT_CONFIG, _config);
+	config = merge(DEFAULT_NIPPY_CONFIG, _config);
+
+	// Yank out logger config.
+	let loggerConfig = config.logger;
+	delete config.logger;
 
 	// Apply middleware in config.
 	for (let mw in config) {
-		if (!KNOWN_MIDDLEWARE[mw]) continue;
+		// Do not process if middleware config is false.
 		if (config[mw] === false) continue;
 
-		if (!config[mw]) config[mw] = [];
+		// Do not process if middleware is unknown.
+		if (!KNOWN_MIDDLEWARE[mw]) continue;
 
+		// Cast to array, so it can be spread as parameteres.
+		if (!(config[mw] instanceof Array)) config[mw] = [config[mw]];
+
+		// Use given middleware with
 		app.use(KNOWN_MIDDLEWARE[mw](...config[mw]));
 	}
 

@@ -8,5 +8,3 @@ export var before: Function = _global.before;
 export var beforeEach: Function = _global.beforeEach;
 
 process.env.NODE_ENV = "test";
-
-export * from "./helpers.spec";
