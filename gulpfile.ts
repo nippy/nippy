@@ -20,3 +20,7 @@ gulp.task("test", () => {
 	return gulp.src(`test/**/*.spec.ts`, { read: false })
 	.pipe(mocha({}));
 });
+
+gulp.task("watch", (done) => {
+	gulp.watch([`src/**/*`, `test/**/*`], ["test"]);
+});
