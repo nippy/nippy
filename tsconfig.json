@@ -21,5 +21,11 @@
 		"test/index.ts",
 		"gulpfile.ts"
 	],
+	"filesGlob": [
+		"**/*.ts"
+	],
+	"atom": {
+		"rewriteTsConfig": true
+	},
 	"compileOnSave": false
 }
