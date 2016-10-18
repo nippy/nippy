@@ -1,19 +1,19 @@
-const del = require("del");
-const gulp = require("gulp");
-//const mocha = require("gulp-mocha");
-const shell = require("gulp-shell");
-const typescript = require("typescript");
+import * as del from "del";
+import * as gulp from "gulp";
+// const mocha = require("gulp-mocha");
+import * as shell from "gulp-shell";
+import * as typescript from "typescript";
 
 // Deletes the distribution folder.
 gulp.task("del", () => {
-  return del("dist");
+	return del("dist");
 });
 gulp.task("delete", ["del"]);
 
 // Compiles the TypeScript.
 gulp.task("compile", ["del"], () => {
-  return gulp.src(`tsconfig.json`, { read: false })
-    .pipe(shell("$(npm bin)/tsc -p <%= file.path %>"));
+	return gulp.src(`tsconfig.json`, { read: false })
+	.pipe(shell("$(npm bin)/tsc -p <%= file.path %>"));
 });
 
 // // Runs the test suites using Mocha.

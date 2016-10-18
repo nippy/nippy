@@ -1,6 +1,6 @@
 export { expect } from "chai";
 
-var _global = <any>(typeof window === "undefined" ? global : window)
+const _global = <any>(typeof window === "undefined" ? global : window);
 
 export var describe: Function = _global.describe;
 export var it: Function = _global.it;

@@ -1,13 +1,13 @@
 import { merge } from "lodash";
 import * as winston from "winston";
 
-const DEFAULT_CONSOLE_TRANSPORT : winston.ConsoleTransportOptions = {
+const DEFAULT_CONSOLE_TRANSPORT: winston.ConsoleTransportOptions = {
 	level: process.env.NODE_ENV === "development" ? "debug" : "verbose",
 	json: false,
 	colorize: true
 };
 
-const DEFAULT_FILE_TRANSPORT : winston.FileTransportOptions = {
+const DEFAULT_FILE_TRANSPORT: winston.FileTransportOptions = {
 	json: true,
 	maxsize: 20 * 1024 * 1024, // 20Mb
 	maxFiles: 100,
@@ -15,11 +15,11 @@ const DEFAULT_FILE_TRANSPORT : winston.FileTransportOptions = {
 };
 
 export interface LoggerConfig {
-	console?: boolean|string|winston.ConsoleTransportOptions,
-	debug?:   boolean|string|winston.FileTransportOptions,
-	info?:    boolean|string|winston.FileTransportOptions,
-	warn?:    boolean|string|winston.FileTransportOptions,
-	error?:   boolean|string|winston.FileTransportOptions
+	console?: boolean|string|winston.ConsoleTransportOptions;
+	debug?:   boolean|string|winston.FileTransportOptions;
+	info?:    boolean|string|winston.FileTransportOptions;
+	warn?:    boolean|string|winston.FileTransportOptions;
+	error?:   boolean|string|winston.FileTransportOptions;
 }
 
 const DEFAULT_LOGGER_CONFIG: LoggerConfig = {

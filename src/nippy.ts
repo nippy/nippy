@@ -3,7 +3,7 @@ import * as compression from "compression";
 import * as cors from "cors";
 import * as express from "express";
 import * as helmet from "helmet";
-import { camelCase, merge } from "lodash";
+import { camelCase, merge } from "lodash";
 import * as morgan from "morgan";
 import * as winston from "winston";
 
@@ -18,7 +18,7 @@ const KNOWN_MIDDLEWARE = {
 };
 
 export interface NippyConfig {
-	logger?: null|LoggerConfig;
+	logger?: null | LoggerConfig;
 
 	// bodyParser: boolean|"json"|"raw"|"text"|"urlencoded";
 	// TODO: Support other body parsers?

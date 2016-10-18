@@ -18,7 +18,8 @@
 	},
 	"files": [
 		"src/nippy.ts",
-		"test/index.ts"
+		"test/index.ts",
+		"gulpfile.ts"
 	],
 	"compileOnSave": false
 }
