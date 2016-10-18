@@ -3,7 +3,8 @@
 		"declaration": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"module": "es6",
+		"lib": ["es6", "es7", "dom"],
+		"module": "commonjs",
 		"moduleResolution": "node",
 		"outDir": "dist",
 		"rootDirs": [
@@ -17,11 +18,10 @@
 		"target": "es6"
 	},
 	"files": [
-		"src/nippy.ts",
-		"test/index.ts",
-		"gulpfile.ts"
+		"src/nippy.ts"
 	],
 	"filesGlob": [
+		"*.ts",
 		"**/*.ts"
 	],
 	"atom": {

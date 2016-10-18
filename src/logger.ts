@@ -4,11 +4,14 @@ import * as winston from "winston";
 
 export interface LoggerConfig {
 	logPath?: string;
-	console?:  boolean|string|winston.ConsoleTransportOptions;
-	debug?:    boolean|string|winston.FileTransportOptions;
-	info?:     boolean|string|winston.FileTransportOptions;
-	warn?:     boolean|string|winston.FileTransportOptions;
-	error?:    boolean|string|winston.FileTransportOptions;
+	exitOnError?: boolean;
+	handleExceptions?: boolean;
+
+	console?: boolean|string|winston.ConsoleTransportOptions;
+	debug?:   boolean|string|winston.FileTransportOptions;
+	info?:    boolean|string|winston.FileTransportOptions;
+	warn?:    boolean|string|winston.FileTransportOptions;
+	error?:   boolean|string|winston.FileTransportOptions;
 }
 
 /**
@@ -40,6 +43,9 @@ export const DEFAULT_FILE_TRANSPORT: winston.FileTransportOptions = {
  */
 export const DEFAULT_LOGGER_CONFIG: LoggerConfig = {
 	logPath: `${process && process.cwd && process.cwd() || "."}`,
+	exitOnError: false,
+	handleExceptions: true,
+
 	console: DEFAULT_CONSOLE_TRANSPORT,
 	error: DEFAULT_FILE_TRANSPORT,
 	info: merge(DEFAULT_FILE_TRANSPORT, {humanReadableUnhandledException: true}),
@@ -69,11 +75,11 @@ export class Logger {
 	/**
 	 * Creates a new Logger instance identified by `name` using `config`.
 	 */
-	constructor(public name: string|symbol, config: LoggerConfig = {}) {
+	constructor(public name: string|symbol = DEFAULT_LOGGER, config: LoggerConfig = {}) {
 		if (name in Logger._loggers) throw new Error(`logger with name "${name}" already exists`);
 
 		// Merge with default config.
-		this.config = config = merge(DEFAULT_LOGGER_CONFIG, config);
+		config = merge(DEFAULT_LOGGER_CONFIG, config);
 
 		// Set up transports based on config.
 		let transports: winston.TransportInstance[] = [];
@@ -84,23 +90,28 @@ export class Logger {
 			// Add console transport.
 			if (key = "console") {
 				transports.push(new winston.transports.Console(conf));
+				delete config[key];
 			}
 
 			// Add file transports.
 			if (["debug", "error", "info", "warn"].includes(key)) {
 				if (!conf.name) conf.name = key;
 				if (!conf.level) conf.level = conf.name;
-				if (!conf.filename) conf.filename = path.join(config.logPath, `${conf.name}.log`);
+				if (!conf.filename) conf.filename = path.join(config.logPath, `${name}-${conf.name}.log`);
 
 				transports.push(new winston.transports.File(conf));
+				delete config[key];
 			}
 		}
+
+		// Make config accessible on instance.
+		this.config = config;
 
 		// Set up the Winston instance.
 		this.winston = new winston.Logger({
 			transports: transports,
-			exitOnError: false,
-			handleExceptions: true
+			exitOnError: config.exitOnError,
+			handleExceptions: config.handleExceptions
 		});
 	}
 

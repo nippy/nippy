@@ -7,7 +7,7 @@ import { camelCase, merge } from "lodash";
 import * as morgan from "morgan";
 import * as winston from "winston";
 
-import { getLogger, LoggerConfig } from "./logger";
+import { Logger, LoggerConfig } from "./logger";
 
 const KNOWN_MIDDLEWARE = {
 	bodyParser: bodyParser.json,
@@ -34,7 +34,7 @@ const DEFAULT_NIPPY_CONFIG: NippyConfig = {
 	helmet: null,
 	morgan: [
 		process && process.env.NODE_ENV === "development" ? "dev" : "combined",
-		{ stream: { write: (msg) => getLogger("access").log("info", msg.replace(/(.*)\s$/, "$1")) } }
+		{ stream: { write: (msg) => Logger.get("access").info(msg.replace(/(.*)\s$/, "$1")) } }
 	]
 };
 

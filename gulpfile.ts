@@ -1,6 +1,6 @@
 import * as del from "del";
 import * as gulp from "gulp";
-// const mocha = require("gulp-mocha");
+import * as mocha from "gulp-mocha";
 import * as shell from "gulp-shell";
 import * as typescript from "typescript";
 
@@ -16,8 +16,7 @@ gulp.task("compile", ["del"], () => {
 	.pipe(shell("$(npm bin)/tsc -p <%= file.path %>"));
 });
 
-// // Runs the test suites using Mocha.
-// gulp.task("test", ["compile"], () => {
-//   return gulp.src(`dist/test/**/*.spec.js`, { read: false })
-//     .pipe(mocha({}));
-// });
+gulp.task("test", () => {
+	return gulp.src(`test/**/*.spec.ts`, { read: false })
+	.pipe(mocha({}));
+});

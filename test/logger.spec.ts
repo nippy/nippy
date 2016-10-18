@@ -1,7 +1,14 @@
-import { Logger } from "../src/logger";
+import { Logger, DEFAULT_LOGGER } from "../src/logger";
+
+console.log(DEFAULT_LOGGER);
 
 describe("Logger", () => {
 	describe("new (name, config)", () => {
+		it("should default `name` to value defined by `DEFAULT_LOGGER`", () => {
+			// let l = new Logger();
+			// expect(l.name).to.be.equal(DEFAULT_LOGGER);
+		});
+
 		it("should throw an error trying to create a Logger with existing name");
 	});
 
