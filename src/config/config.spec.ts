@@ -2,8 +2,6 @@ import * as path from "path";
 import { expect } from "chai";
 import { rootFactory } from "../helpers";
 
-console.log(path.resolve("hubba"));
-
 let fix = rootFactory(__dirname, "fixtures");
 
 import { Config, config, init } from "./config";

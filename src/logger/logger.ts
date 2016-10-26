@@ -2,7 +2,7 @@ import * as path from "path";
 import { merge } from "lodash";
 import * as winston from "winston";
 
-export interface LoggerConfig {
+export interface LoggerOptions {
 	logPath?: string;
 	exitOnError?: boolean;
 	handleExceptions?: boolean;
@@ -42,7 +42,7 @@ export const DEFAULT_FILE_TRANSPORT: winston.FileTransportOptions = {
 /**
  * The default configuration used for a new Logger instance.
  */
-export const DEFAULT_LOGGER_CONFIG: LoggerConfig = {
+export const DEFAULT_LOGGER_CONFIG: LoggerOptions = {
 	logPath: `${process && process.cwd && process.cwd() || "."}/logs`,
 	exitOnError: false,
 	handleExceptions: true,
@@ -72,12 +72,12 @@ export class Logger {
 	/**
 	 * The Logger configuration, as read-only, used for current instance.
 	 */
-	readonly config: LoggerConfig;
+	readonly config: LoggerOptions;
 
 	/**
 	 * Creates a new Logger instance identified by `name` using `config`.
 	 */
-	constructor(public name: string|symbol = DEFAULT_LOGGER, config: LoggerConfig = {}) {
+	constructor(public name: string|symbol = DEFAULT_LOGGER, config: LoggerOptions = {}) {
 		// Make sure a logger with given `name` doesn't exist already.
 		if (name in Logger._loggers) throw new Error(`logger with name "${name.toString()}" already exists`);
 

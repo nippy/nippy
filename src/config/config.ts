@@ -3,34 +3,6 @@ import * as fs from "fs-extra";
 import { merge } from "lodash";
 
 /**
- * The assumed default configuration path. Using `cwd` or `__dirname`, with
- * `/config` appended to the end.
- *
- * @constant {string}
- */
-const DEFAULT_CONFIG_PATH: string = `${process && process.cwd() || __dirname}/config`;
-
-/**
- * Default variables to map from environment variables.
- *
- * @constant {ConfigEnvMapping}
- */
-const DEFAULT_ENV_MAPPING: ConfigEnvMapping = {
-	PORT: "server.port"
-};
-
-/**
- * Default options to use for a new Config instance.
- *
- * @contant {ConfigOptions}
- */
-const DEFAULT_OPTIONS: ConfigOptions = {
-	load_default: true,
-	load_env: true,
-	env_mapping: DEFAULT_ENV_MAPPING
-};
-
-/**
  * Interface for defining mapping environment variables to configuration.
  *
  * @interface
@@ -59,6 +31,35 @@ export interface ConfigOptions {
 export interface ConfigStore {
 	[path: string]: Config;
 }
+
+/**
+ * The assumed default configuration path. Using `cwd` or `__dirname`, with
+ * `/config` appended to the end.
+ *
+ * @constant {string}
+ */
+const DEFAULT_CONFIG_PATH: string = `${process && process.cwd() || __dirname}/config`;
+
+/**
+ * Default variables to map from environment variables.
+ *
+ * @constant {ConfigEnvMapping}
+ */
+const DEFAULT_ENV_MAPPING: ConfigEnvMapping = {
+	PORT: "server.port"
+};
+
+/**
+ * Default options to use for a new Config instance.
+ *
+ * @contant {ConfigOptions}
+ */
+const DEFAULT_OPTIONS: ConfigOptions = {
+	path: DEFAULT_CONFIG_PATH,
+	load_default: true,
+	load_env: true,
+	env_mapping: DEFAULT_ENV_MAPPING
+};
 
 /**
  * Class representing a set of configurations.
@@ -284,7 +285,7 @@ let _configs: ConfigStore = {};
  *     Returns existing `Config` instance with given `path` or a newly created
  *     if none was found.
  */
-export function init(path: string = DEFAULT_CONFIG_PATH, options: undefined|ConfigOptions = undefined) : Config {
+export function init(path: string = DEFAULT_CONFIG_PATH, options?: ConfigOptions) : Config {
 	if (!_configs[path]) _configs[path] = new Config(path, options);
 	return _configs[path];
 }
