@@ -1,0 +1,8 @@
+node_modules/
+src/
+*.log
+*.tgz
+.editorconfig
+gulpfile.ts
+tsconfig.json
+tslint.json
