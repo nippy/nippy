@@ -1,4 +1,4 @@
-import { Logger, DEFAULT_LOGGER, DEFAULT_LOGGER_CONFIG } from "../src/logger";
+import { Logger, DEFAULT_LOGGER, DEFAULT_LOGGER_CONFIG } from "./logger";
 import { expect } from "chai";
 
 describe("Logger", () => {

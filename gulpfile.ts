@@ -8,7 +8,6 @@ import * as typescript from "typescript";
 gulp.task("del", () => {
 	return del("dist");
 });
-gulp.task("delete", ["del"]);
 
 // Compiles the TypeScript.
 gulp.task("compile", ["del"], () => {
@@ -16,11 +15,16 @@ gulp.task("compile", ["del"], () => {
 	.pipe(shell("$(npm bin)/tsc -p <%= file.path %>"));
 });
 
+// Runs all tests with mocha.
 gulp.task("test", () => {
-	return gulp.src(`test/**/*.spec.ts`, { read: false })
+	return gulp.src(`src/**/*.spec.ts`, { read: false })
 	.pipe(mocha({}));
 });
 
+// Watches for changes and runs test.
 gulp.task("watch", (done) => {
-	gulp.watch([`src/**/*`, `test/**/*`], ["test"]);
+	gulp.watch([`src/**/*`], ["test"]);
 });
+
+// Default runs test and watch.
+gulp.task("default", ["test", "watch"]);
