@@ -1,5 +1,6 @@
-import { Logger, DEFAULT_LOGGER, DEFAULT_LOGGER_CONFIG } from "./logger";
 import { expect } from "chai";
+
+import { Logger, DEFAULT_LOGGER, DEFAULT_LOGGER_CONFIG } from "./logger";
 
 describe("Logger", () => {
 	let main = new Logger();

@@ -1,0 +1,7 @@
+{
+	"foo": "Bar",
+	"test": {
+		"deep": "Baz",
+		"false": false
+	}
+}
