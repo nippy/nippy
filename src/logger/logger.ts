@@ -24,7 +24,7 @@ export const DEFAULT_LOGGER: symbol = Symbol("default");
  * The default configuration used for console transports.
  */
 export const DEFAULT_CONSOLE_TRANSPORT: winston.ConsoleTransportOptions = {
-	level: process.env.NODE_ENV === "development" ? "debug" : "verbose",
+	level: process.env.NODE_ENV === "production" ? "verbose" : "debug",
 	json: false,
 	colorize: true
 };

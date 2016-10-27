@@ -2,13 +2,24 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import { merge } from "lodash";
 
+// TODO: Find a better way to define default values for environment variables.
+// /**
+//  * Interface for defining envorinment options.
+//  *
+//  * @interface
+//  */
+// export interface ConfigEnvOptions {
+// 	default?: any;
+// 	map: string;
+// }
+
 /**
  * Interface for defining mapping environment variables to configuration.
  *
  * @interface
  */
 export interface ConfigEnvMapping {
-	[ENV: string]: any;
+	[ENV: string]: string;
 }
 
 /**
@@ -20,7 +31,7 @@ export interface ConfigOptions {
 	path?: string;
 	load_default?: boolean;
 	load_env?: boolean;
-	env_mapping?: ConfigEnvMapping|boolean;
+	env_mapping?: boolean|ConfigEnvMapping;
 }
 
 /**
@@ -46,6 +57,7 @@ const DEFAULT_CONFIG_PATH: string = `${process && process.cwd() || __dirname}/co
  * @constant {ConfigEnvMapping}
  */
 const DEFAULT_ENV_MAPPING: ConfigEnvMapping = {
+	NODE_ENV: "env",
 	PORT: "server.port"
 };
 
@@ -90,7 +102,7 @@ export class Config {
 		default_options: ConfigOptions = {}
 	) {
 		// Merge provided options with defaults.
-		let _options: ConfigOptions = merge(DEFAULT_OPTIONS, options);
+		let _options: ConfigOptions = DEFAULT_OPTIONS; // = merge(DEFAULT_OPTIONS, options);
 
 		// Add `string` path to options if provided.
 		if (typeof options === "string") {
@@ -133,10 +145,23 @@ export class Config {
 			let mapping: ConfigEnvMapping = typeof env_mapping === "object" ? env_mapping : DEFAULT_ENV_MAPPING;
 
 			// Iterate mappings, check the environment variable exists and set it.
-			for (let key in mapping) {
-				if (process.env[key]) {
-					// this.set(env_mapping[key], process.env[key]);
-				}
+			for (let env in mapping) {
+				let m = mapping[env];
+
+				// Determine what key to set for value.
+				let key: string;
+				if      (typeof m === "string") key = m;
+				// else if (typeof m === "object") key = m.map;
+				else continue;
+
+				// Determine what value to use.
+				let value: any = process.env[env]; // || typeof m === "object" && m.default;
+
+				// Continue if no value is defined.
+				if (!value && value !== false) continue;
+
+				// Set value.
+				this.set(key, value);
 			}
 		}
 	}
@@ -198,12 +223,16 @@ export class Config {
 	 * @throws {Error}      When a faulty value, that's not `false`, is found,
 	 *     throws an exception.
 	 */
-	public get(key: string) : any {
+	public get(key: string, fallback?: any) : any {
 		// Get context.
 		let ret = this._get(key);
 
 		// Check there is a value for key.
 		if (!ret && ret !== false) {
+			// Return fallback if set.
+			if (fallback) return fallback;
+
+			// Or throw error.
 			// TODO: Replace with custom Error class.
 			throw new Error(`no configuration for "${key}" found`);
 		}
@@ -296,6 +325,6 @@ export function init(path: string = DEFAULT_CONFIG_PATH, options?: ConfigOptions
  * @param  {string} key Which key to look for.
  * @return {any}        Returns value found for `key` on default config.
  */
-export function config(key: string) : any {
-	return init().get(key);
+export function config(key: string, fallback?: any) : any {
+	return init().get(key, fallback);
 }

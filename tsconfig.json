@@ -18,7 +18,7 @@
 		"target": "es6"
 	},
 	"files": [
-		"src/nippy.ts"
+		"src/index.ts"
 	],
 	"filesGlob": [
 		"*.ts",

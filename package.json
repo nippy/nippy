@@ -2,8 +2,8 @@
   "name": "nippy",
   "version": "0.0.1",
   "description": "Fast, opinionated, minimalist micro service framework.",
-	"main": "dist/nippy.js",
-	"types": "dist/nippy.d.ts",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
   "scripts": {
     "test": "gulp test"
   },
