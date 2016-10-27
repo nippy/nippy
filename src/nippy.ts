@@ -8,20 +8,39 @@ import { camelCase, merge } from "lodash";
 import * as morgan from "morgan";
 import * as winston from "winston";
 
-import { config } from "./config";
-import { Logger, LoggerOptions } from "./logger";
+import * as config from "./config";
+import * as logger from "./logger";
 
+/**
+ * Interface defining a list of middleware.
+ *
+ * @interface
+ */
 export interface MiddlewareList {
 	[name: string]: Function;
 }
 
+/**
+ * Interface defining supported options for Nippy.
+ *
+ * @interface
+ */
 export interface NippyOptions {
-	logger?: null | LoggerOptions;
+	logger?: undefined|logger.LoggerOptions;
 
 	// bodyParser: boolean|"json"|"raw"|"text"|"urlencoded";
 	// TODO: Support other body parsers?
 
 	[middleware: string]: any;
+}
+
+/**
+ * Application type extending upon `express.Applicaton`.
+ */
+export type Application = express.Application & {
+	name: string;
+	config: config.Config;
+	logger: logger.Logger;
 }
 
 /**
@@ -43,14 +62,14 @@ const KNOWN_MIDDLEWARE: MiddlewareList = {
  * @type {NippyOptions}
  */
 const DEFAULT_NIPPY_OPTIONS: NippyOptions = {
-	logger: null,
+	logger: undefined,
 	bodyParser: null,
 	compression: null,
 	cors: null,
 	helmet: null,
 	morgan: [
 		process && process.env.NODE_ENV === "development" ? "dev" : "combined",
-		{ stream: { write: (msg) => Logger.get("access").info(msg.replace(/(.*)\s$/, "$1")) } }
+		{ stream: { write: (msg) => logger.Logger.get("access").info(msg.replace(/(.*)\s$/, "$1")) } }
 	]
 };
 
@@ -61,21 +80,34 @@ const DEFAULT_NIPPY_OPTIONS: NippyOptions = {
  * @param  {NippyOptions}        options The options used to set up nippy.
  * @return {express.Application}         Returns the application from Express.
  */
-export function nippy(options: NippyOptions) : express.Application {
+export function nippy(name: string, options?: NippyOptions) : Application {
 	// The Express application.
-	const app = express();
+	const e: express.Application = express();
 
 	// Temporary options in order to map camel case.
 	let _options = {};
-	for (let key in options) {
-		_options[camelCase(key)] = options[key];
+
+	// Map provided options to temporary hash.
+	if (options) {
+		for (let key in options) {
+			_options[camelCase(key)] = options[key];
+		}
 	}
 
 	// Merge provided options with defaults.
 	options = merge(DEFAULT_NIPPY_OPTIONS, _options);
 
-	// Yank out logger options.
-	let loggerOptions = options.logger;
+	// Setup merged app.
+	const app = merge(e, {
+		name: name,
+		config: config.init(),
+		logger: new logger.Logger(logger.DEFAULT_LOGGER, options.logger)
+	});
+
+	// Inform about current environment.
+	app.logger.log("info", `%s starting in environment "%s"`, app.name, app.config.get("env", "unknown"));
+
+	// Delete `logger` from options, to avoid being handled as middleware.
 	delete options.logger;
 
 	// Apply middleware in options.
@@ -98,25 +130,40 @@ export function nippy(options: NippyOptions) : express.Application {
 
 	/**
 	 *
- 	 * Overwrite listen method to automatically use port in config if none is
- 	 * provided.
- 	 *
- 	 * See `http.Server.listen` for parameters.
- 	 *
- 	 * If the first parametere is a number that is used for the port number, else
- 	 * will try to fall back to `server.port` in the config, else Express default.
- 	 *
+	 * Overwrite listen method to automatically use port in config if none is
+	 * provided.
+	 *
+	 * See `http.Server.listen` for parameters.
+	 *
+	 * If the first parametere is a number that is used for the port number, else
+	 * will try to fall back to `server.port` in the config, else Express default.
+	 *
 	 * @param  {[any]}       ...args Arguments to pass to `express.listen`.
 	 * @return {http.Server}         Returns the `Server` returned by Express.
 	 */
 	app.listen = function(...args) : http.Server {
+		// Yank out port number, using `server.port` from config if undefined.
 		let port
 			= typeof args[0] === "number"
 			? args.shift()
-			: config("server.port")
+			: config.config("server.port")
 			;
 
-		return _listen.apply(app, [port].concat(args));
+		// Yank out callback, so it can be wrapped.
+		let callback
+			= typeof args[args.length - 1] === "function"
+			? args.pop()
+			: () => {}
+			;
+
+		// Apply arguments to `express.listen`.
+		let server = _listen.apply(app, [port].concat(args, [(...args) => {
+			let a = server.address();
+			app.logger.log("info", `%s started on "%s:%s" (%s)`, app.name, a.address, a.port, a.family);
+		}]));
+
+		// Return server.
+		return server;
 	};
 
 	// Return the final app.
