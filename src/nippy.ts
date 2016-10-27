@@ -2,6 +2,7 @@ import * as bodyParser from "body-parser";
 import * as compression from "compression";
 import * as cors from "cors";
 import * as http from "http";
+import * as ec from "express-serve-static-core";
 import * as express from "express";
 import * as helmet from "helmet";
 import { camelCase, merge } from "lodash";
@@ -35,15 +36,6 @@ export interface NippyOptions {
 }
 
 /**
- * Application type extending upon `express.Applicaton`.
- */
-export type Application = express.Application & {
-	name: string;
-	config: config.Config;
-	logger: logger.Logger;
-}
-
-/**
  * List of known middleware that can be used with Nippy.
  *
  * @type {MiddlewareList}
@@ -73,60 +65,74 @@ const DEFAULT_NIPPY_OPTIONS: NippyOptions = {
 	]
 };
 
-/**
- * Creates a new Express application, applying default middleware and setting up
- * logging.
- *
- * @param  {NippyOptions}        options The options used to set up nippy.
- * @return {express.Application}         Returns the application from Express.
- */
-export function nippy(name: string, options?: NippyOptions) : Application {
-	// The Express application.
-	const e: express.Application = express();
+export abstract class Application {
+	name: string;
+	options: NippyOptions;
+	express: express.Application;
+	config: config.Config;
+	logger: logger.Logger;
 
-	// Temporary options in order to map camel case.
-	let _options = {};
+	all: ec.IRouterMatcher<this>;
+	get: ec.IRouterMatcher<this>;
+	post: ec.IRouterMatcher<this>;
+	put: ec.IRouterMatcher<this>;
+	delete: ec.IRouterMatcher<this>;
+	patch: ec.IRouterMatcher<this>;
+	head: ec.IRouterMatcher<this>;
+	use: ec.IRouterHandler<this> & ec.IRouterMatcher<this>;
+	abstract route(prefix: ec.PathParams) : ec.IRoute;
+}
 
-	// Map provided options to temporary hash.
-	if (options) {
-		for (let key in options) {
-			_options[camelCase(key)] = options[key];
+export class Nippy implements Application {
+	public options: NippyOptions;
+	public express: express.Application;
+	public config: config.Config;
+	public logger: logger.Logger;
+
+	constructor(public name: string, options?: NippyOptions) {
+		// The Express application.
+		this.express = express();
+
+		// Temporary options in order to map camel case.
+		let _options = {};
+
+		// Map provided options to temporary hash.
+		if (options) {
+			for (let key in options) {
+				_options[camelCase(key)] = options[key];
+			}
+		}
+
+		// Add default config instance.
+		this.config = config.init(),
+
+		// Create new logger instance.
+		this.logger = new logger.Logger(logger.DEFAULT_LOGGER, options && options.logger);
+
+		// Merge provided options with defaults.
+		this.options = options = merge(DEFAULT_NIPPY_OPTIONS, _options);
+
+		// Inform about current environment.
+		this.logger.log("info", `%s starting in environment "%s"`, this.name, this.config.get("env", "unknown"));
+
+		// Delete `logger` from options, to avoid being handled as middleware.
+		delete options.logger;
+
+		// Apply middleware in options.
+		for (let mw in options) {
+			// Do not process if middleware options is false.
+			if (options[mw] === false) continue;
+
+			// Do not process if middleware is unknown.
+			if (!KNOWN_MIDDLEWARE[mw]) continue;
+
+			// Cast to array, so it can be spread as parameteres.
+			if (!(options[mw] instanceof Array)) options[mw] = [options[mw]];
+
+			// Use given middleware with
+			this.use(KNOWN_MIDDLEWARE[mw](...options[mw]));
 		}
 	}
-
-	// Merge provided options with defaults.
-	options = merge(DEFAULT_NIPPY_OPTIONS, _options);
-
-	// Setup merged app.
-	const app = merge(e, {
-		name: name,
-		config: config.init(),
-		logger: new logger.Logger(logger.DEFAULT_LOGGER, options.logger)
-	});
-
-	// Inform about current environment.
-	app.logger.log("info", `%s starting in environment "%s"`, app.name, app.config.get("env", "unknown"));
-
-	// Delete `logger` from options, to avoid being handled as middleware.
-	delete options.logger;
-
-	// Apply middleware in options.
-	for (let mw in options) {
-		// Do not process if middleware options is false.
-		if (options[mw] === false) continue;
-
-		// Do not process if middleware is unknown.
-		if (!KNOWN_MIDDLEWARE[mw]) continue;
-
-		// Cast to array, so it can be spread as parameteres.
-		if (!(options[mw] instanceof Array)) options[mw] = [options[mw]];
-
-		// Use given middleware with
-		app.use(KNOWN_MIDDLEWARE[mw](...options[mw]));
-	}
-
-	// Hold a reference to Express' listen method.
-	let _listen = app.listen;
 
 	/**
 	 *
@@ -141,7 +147,7 @@ export function nippy(name: string, options?: NippyOptions) : Application {
 	 * @param  {[any]}       ...args Arguments to pass to `express.listen`.
 	 * @return {http.Server}         Returns the `Server` returned by Express.
 	 */
-	app.listen = function(...args) : http.Server {
+	public listen(...args) : http.Server {
 		// Yank out port number, using `server.port` from config if undefined.
 		let port
 			= typeof args[0] === "number"
@@ -157,17 +163,50 @@ export function nippy(name: string, options?: NippyOptions) : Application {
 			;
 
 		// Apply arguments to `express.listen`.
-		let server = _listen.apply(app, [port].concat(args, [(...args) => {
+		let server = this.express.listen.apply(this.express, [port].concat(args, [(...args) => {
 			let a = server.address();
-			app.logger.log("info", `%s started on "%s:%s" (%s)`, app.name, a.address, a.port, a.family);
+			this.logger.log("info", `%s started on "%s:%s" (%s)`, this.name, a.address, a.port, a.family);
 		}]));
 
 		// Return server.
 		return server;
-	};
+	}
 
-	// Return the final app.
-	return app;
+	// engine(ext: string, fn: Function) : this { return this.express.engine(ext, fn) && this; }
+	// set(setting: string, val: any) : this { return this.express.set(setting, val) && this; }
+	// get(name: string) : any { return this.express.get(name); }
+	// // TODO: Get better typing for param.
+	// param(...args) : this { return this.express.param.apply(this.express, args) && this; }
+	// path() : string { return this.express.path(); }
+	// enabled(setting: string) : boolean { return this.express.enabled(setting); }
+	// disabled(setting: string) : boolean { return this.express.disabled(setting); }
+	// enable(setting: string) : this { return this.express.enable(setting) && this; }
+	// disable(setting: string) : this { return this.express.disable(setting) && this; }
+	// // TODO: Get better typing for configure.
+	// configure(...args) : this { return this.express.configure.apply(this.express, args) && this; }
+	// // TODO: Get better typing for render.
+	// render(...args) : this { return this.express.render.apply(this.express, args) && this; }
+
+	all(path: string, ...handlers)    { return this.express.all(path, ...handlers) && this; }
+	get(path: string, ...handlers)    { return this.express.get(path, ...handlers) && this; }
+	post(path: string, ...handlers)   { return this.express.post(path, ...handlers) && this; }
+	put(path: string, ...handlers)    { return this.express.put(path, ...handlers) && this; }
+	delete(path: string, ...handlers) { return this.express.delete(path, ...handlers) && this; }
+	patch(path: string, ...handlers)  { return this.express.patch(path, ...handlers) && this; }
+	head(path: string, ...handlers)   { return this.express.head(path, ...handlers) && this; }
+	use(...handlers)                  { return this.express.use(...handlers) && this; }
+	route(prefix: ec.PathParams)      { return this.express.route(prefix); }
+}
+
+/**
+ * Helper function to create a new Nippy instance.
+ *
+ * @param  {string}       name    The name to be used for Nippy instance.
+ * @param  {NippyOptions} options The options used to set up Nippy.
+ * @return {Nippy}                Returns the application from Express.
+ */
+export function nippy(name: string, options?: NippyOptions) : Nippy {
+	return new Nippy(name, options);
 }
 
 // Export `nippy` as default.
