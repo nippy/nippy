@@ -113,7 +113,7 @@ export class Nippy implements Application {
 		this.options = options = merge(DEFAULT_NIPPY_OPTIONS, _options);
 
 		// Inform about current environment.
-		this.logger.log("info", `%s starting in environment "%s"`, this.name, this.config.get("env", "unknown"));
+		this.logger.log("info", `{%s} starting in environment "%s"`, this.name, this.config.get("env", "unknown"));
 
 		// Delete `logger` from options, to avoid being handled as middleware.
 		delete options.logger;
@@ -165,7 +165,7 @@ export class Nippy implements Application {
 		// Apply arguments to `express.listen`.
 		let server = this.express.listen.apply(this.express, [port].concat(args, [(...args) => {
 			let a = server.address();
-			this.logger.log("info", `%s started on "%s:%s" (%s)`, this.name, a.address, a.port, a.family);
+			this.logger.log("info", `{%s} started on "%s:%s" (%s)`, this.name, a.address, a.port, a.family);
 		}]));
 
 		// Return server.
