@@ -230,7 +230,7 @@ export class Config {
 		// Check there is a value for key.
 		if (!ret && ret !== false) {
 			// Return fallback if set.
-			if (fallback) return fallback;
+			if (fallback !== undefined) return fallback;
 
 			// Or throw error.
 			// TODO: Replace with custom Error class.

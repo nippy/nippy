@@ -1,8 +1,12 @@
 import * as path from "path";
+import * as fs from "fs-extra";
 import { merge } from "lodash";
 import * as winston from "winston";
 
+import { Nippy, config } from "../";
+
 export interface LoggerOptions {
+	path?: string;
 	logPath?: string;
 	exitOnError?: boolean;
 	handleExceptions?: boolean;
@@ -42,8 +46,8 @@ export const DEFAULT_FILE_TRANSPORT: winston.FileTransportOptions = {
 /**
  * The default configuration used for a new Logger instance.
  */
-export const DEFAULT_LOGGER_CONFIG: LoggerOptions = {
-	logPath: `${process && process.cwd && process.cwd() || "."}/logs`,
+export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
+	logPath: config("logger.logPath", null) || config("paths.logs", null) || "/var/log",
 	exitOnError: false,
 	handleExceptions: true,
 	transports: [],
@@ -60,26 +64,48 @@ export const DEFAULT_LOGGER_CONFIG: LoggerOptions = {
  */
 export class Logger {
 	/**
+	 * The Nippy instance responsible for instantiating the Logger.
+	 */
+	public readonly nippy: Nippy|undefined;
+
+	/**
+	 * The Winston instance belonging to the Logger instance.
+	 */
+	public readonly winston: winston.LoggerInstance;
+
+	/**
+	 * The Logger configuration, as read-only, used for current instance.
+	 */
+	public readonly options: LoggerOptions;
+
+	/**
 	 * List of previously created loggers.
 	 */
 	private static _loggers: { [name: string]: Logger } = {};
 
 	/**
-	 * The Winston instance belonging to the Logger instance.
+	 * Creates a new Logger instance identified by `name` using `options`.
+	 *
+	 * @param  {string|symbol = DEFAULT_LOGGER}         name
+	 *         The name to use for the Logger instance.
+	 * @param  {LoggerOptions = DEFAULT_LOGGER_OPTIONS} options
+	 *         The options to be used for the instance.
+	 * @return {void}
 	 */
-	readonly winston: winston.LoggerInstance;
-
-	/**
-	 * The Logger configuration, as read-only, used for current instance.
-	 */
-	readonly config: LoggerOptions;
-
-	/**
-	 * Creates a new Logger instance identified by `name` using `config`.
-	 */
-	constructor(public name: string|symbol = DEFAULT_LOGGER, config: LoggerOptions = {}) {
+	constructor(
+		public name: string|symbol = DEFAULT_LOGGER,
+		options: LoggerOptions = DEFAULT_LOGGER_OPTIONS,
+		nippy?: Nippy
+	) {
 		// Make sure a logger with given `name` doesn't exist already.
-		if (name in Logger._loggers) throw new Error(`logger with name "${name.toString()}" already exists`);
+		if (name in Logger._loggers) {
+			throw new Error(`logger with name "${name.toString()}" already exists`);
+		}
+
+		// Bind Nippy instance if provided.
+		if (nippy && nippy instanceof Nippy) {
+			this.nippy = nippy;
+		}
 
 		// Convert symbol names to strings, and remove the `Symbol()` wrapping.
 		if (typeof name === "symbol") {
@@ -87,20 +113,20 @@ export class Logger {
 			name = matches && matches[1].toString() || "";
 		}
 
-		// Merge with default config.
-		config = merge({}, DEFAULT_LOGGER_CONFIG, config);
+		// Merge with default options.
+		options = merge({}, DEFAULT_LOGGER_OPTIONS, options);
 
-		// Remap root level transports to the `transports` property on config.
-		let transports: winston.TransportInstance[] = config.transports || [];
-		for (let key in config) {
-			let conf = config[key];
+		// Remap root level transports to the `transports` property on options.
+		let transports: winston.TransportInstance[] = options.transports || [];
+		for (let key in options) {
+			let transport = options[key];
 
 			// Configure transports.
 			switch (key) {
 				// Console transport.
 				case "console":
 					// Push to transports, ensuring it's not `false`.
-					if (conf !== false) transports.push(new winston.transports.Console(conf));
+					if (transport !== false) transports.push(new winston.transports.Console(transport));
 					break;
 
 				// File transports.
@@ -109,20 +135,42 @@ export class Logger {
 				case "info":
 				case "warn":
 					// Break if transport is explicitly set to `false`.
-					if (conf === false) break;
+					if (transport === false) break;
 
 					// Assume `name` equals `key` if no `name` is provided.
-					if (!conf.name) conf.name = key;
+					if (!transport.name) transport.name = key;
 
 					// Assume `level` equals `name` if no `level` is provided.
-					if (!conf.level) conf.level = conf.name;
+					if (!transport.level) transport.level = transport.name;
 
 					// Create a `filename` if none is provided.
-					let filename = `${name}-${conf.name}.log`;
-					if (!conf.filename) conf.filename = path.join(config.logPath, filename);
+					if (!transport.filename) {
+						// Start with the name of current transport.
+						let filename = `${transport.name}.log`;
+
+						// Prepend with the Logger instance name, if not default name.
+						if (this.name !== DEFAULT_LOGGER) {
+							filename = `${name}-${filename}`;
+						}
+
+						// Preprend with Nippy instance name, if existing.
+						if (this.nippy && this.nippy.name) {
+							filename = path.join(this.nippy.name, filename);
+						}
+
+						// Join with `logPath`.
+						let logPath = transport.logPath || options.logPath;
+						filename = path.join(logPath, filename);
+
+						// Ensure folder exists.
+						fs.ensureDirSync(path.dirname(filename));
+
+						// Set on transport.
+						transport.filename = filename;
+					}
 
 					// Push to transports.
-					transports.push(new winston.transports.File(conf));
+					transports.push(new winston.transports.File(transport));
 					break;
 
 				// In case it's not a transport.
@@ -131,15 +179,15 @@ export class Logger {
 					continue;
 			}
 
-			// Delete the transport from the config.
-			delete config[key];
+			// Delete the transport from the options.
+			delete options[key];
 		}
 
-		// Make config accessible on instance.
-		this.config = config;
+		// Make options accessible on instance.
+		this.options = options;
 
 		// Set up the Winston instance.
-		this.winston = new winston.Logger(config);
+		this.winston = new winston.Logger(options);
 
 		// Add instance to list of loggers.
 		Logger._loggers[this.name] = this;
@@ -147,6 +195,11 @@ export class Logger {
 
 	/**
 	 * Returns Logger instance identified by `name`, creating if it doesn't exist.
+	 *
+	 * @param  {string|symbol = DEFAULT_LOGGER} name
+	 *         The name of the logger to return.
+	 * @return {Logger}
+	 *         Returns the existing, or newly created, Logger instance.
 	 */
 	static get(name: string|symbol = DEFAULT_LOGGER) : Logger {
 		if (!Logger._loggers[name]) { Logger._loggers[name] = new Logger(name); }

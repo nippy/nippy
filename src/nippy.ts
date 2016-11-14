@@ -104,10 +104,10 @@ export class Nippy implements Application {
 		}
 
 		// Add default config instance.
-		this.config = config.init(),
+		this.config = config.init();
 
 		// Create new logger instance.
-		this.logger = new logger.Logger(logger.DEFAULT_LOGGER, options && options.logger);
+		this.logger = new logger.Logger(undefined, options && options.logger, this);
 
 		// Merge provided options with defaults.
 		this.options = options = merge(DEFAULT_NIPPY_OPTIONS, _options);
