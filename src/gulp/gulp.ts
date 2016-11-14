@@ -1,5 +1,6 @@
 import * as del from "del";
 import * as mocha from "gulp-mocha";
+import * as nodemon from "gulp-nodemon";
 import * as shell from "gulp-shell";
 
 export interface Task {
@@ -16,7 +17,7 @@ export interface TaskList {
  */
 export function registerGulpTasks(gulp) {
 	let tasks: TaskList = {
-		default: { before: ["test", "watch"] },
+		default: { before: ["nodemon", "test", "watch"] },
 		del: { task: () => del("dist") },
 
 		compile: {
@@ -24,6 +25,20 @@ export function registerGulpTasks(gulp) {
 			task: () => {
 				return gulp.src(`tsconfig.json`, { read: false })
 				.pipe(shell("$(npm bin)/tsc -p <%= file.path %>"));
+			}
+		},
+
+		nodemon: {
+			before: ["compile"],
+			task: (done) => {
+				return nodemon({
+					ext: "js json",
+					env: { "NODE_ENV": "development" },
+					ignore: [
+						"data/",
+						"node_modules/"
+					]
+				}).once("start", done);
 			}
 		},
 
@@ -36,7 +51,7 @@ export function registerGulpTasks(gulp) {
 
 		watch: {
 			task: (done) => {
-				gulp.watch([`src/**/*`], ["test"]);
+				gulp.watch([`src/**/*`], ["test", "compile"]);
 			}
 		}
 	};
