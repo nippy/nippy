@@ -187,15 +187,15 @@ export class Nippy implements Application {
 	// // TODO: Get better typing for render.
 	// render(...args) : this { return this.express.render.apply(this.express, args) && this; }
 
-	all(path: string, ...handlers)    { return this.express.all(path, ...handlers) && this; }
-	get(path: string, ...handlers)    { return this.express.get(path, ...handlers) && this; }
-	post(path: string, ...handlers)   { return this.express.post(path, ...handlers) && this; }
-	put(path: string, ...handlers)    { return this.express.put(path, ...handlers) && this; }
-	delete(path: string, ...handlers) { return this.express.delete(path, ...handlers) && this; }
-	patch(path: string, ...handlers)  { return this.express.patch(path, ...handlers) && this; }
-	head(path: string, ...handlers)   { return this.express.head(path, ...handlers) && this; }
-	use(...handlers)                  { return this.express.use(...handlers) && this; }
-	route(prefix: ec.PathParams)      { return this.express.route(prefix); }
+	all(path: ec.PathParams, ...handlers)    { return this.express.all(path, ...handlers) && this; }
+	get(path: ec.PathParams, ...handlers)    { return this.express.get(path, ...handlers) && this; }
+	post(path: ec.PathParams, ...handlers)   { return this.express.post(path, ...handlers) && this; }
+	put(path: ec.PathParams, ...handlers)    { return this.express.put(path, ...handlers) && this; }
+	delete(path: ec.PathParams, ...handlers) { return this.express.delete(path, ...handlers) && this; }
+	patch(path: ec.PathParams, ...handlers)  { return this.express.patch(path, ...handlers) && this; }
+	head(path: ec.PathParams, ...handlers)   { return this.express.head(path, ...handlers) && this; }
+	use(...handlers)                         { return this.express.use(...handlers) && this; }
+	route(prefix: ec.PathParams)             { return this.express.route(prefix); }
 }
 
 /**
