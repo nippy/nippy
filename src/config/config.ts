@@ -2,6 +2,8 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import { merge } from "lodash";
 
+import { Logger } from "../logger";
+
 // TODO: Find a better way to define default values for environment variables.
 // /**
 //  * Interface for defining envorinment options.
@@ -49,7 +51,7 @@ export interface ConfigStore {
  *
  * @constant {string}
  */
-const DEFAULT_CONFIG_PATH: string = `${process && process.cwd() || __dirname}/config`;
+const DEFAULT_CONFIG_PATH: string = path.resolve("config");
 
 /**
  * Default variables to map from environment variables.
@@ -85,36 +87,54 @@ export class Config {
 	public readonly options: ConfigOptions;
 
 	/**
+	 * List of previously created Config instances.
+	 */
+	private static _configs: { [path: string]: Config } = {};
+
+	/**
+	 * Returns existing config for path, or create a new instance.
+	 *
+	 * @param  {string = DEFAULT_CONFIG_PATH}        path
+	 *     The path to where the configuration files are stored. Defaults to
+	 *     `DEFAULT_CONFIG_PATH` if none is given.
+	 * @param  {undefined|ConfigOptions = undefined} options
+	 *     Additional configuration options to be used for the `Config` instance.
+	 * @return {Config}
+	 *     Returns existing `Config` instance with given `path` or a newly created
+	 *     if none was found.
+	 */
+	static init(path: string = DEFAULT_CONFIG_PATH, options: ConfigOptions = {}) : Config {
+		if (!Config._configs[path]) Config._configs[path] = new Config(merge(options, { path: path }));
+		return Config._configs[path];
+	}
+
+	/**
+	 * Helper function to get value from default `Config` instance.
+	 *
+	 * @param  {string} key Which key to look for.
+	 * @return {any}        Returns value found for `key` on default config.
+	 */
+	static get(key: string, fallback?: any) {
+		return Config.init().get(key, fallback);
+	}
+
+	/**
 	 * Creates a new configuration instance.
 	 *
-	 * @param  {undefined|string|ConfigOptions = undefined} options
+	 * @param  {string|ConfigOptions = {}} options
 	 *     The configuration options to be used for the instance. If `undefined`
 	 *     the default options and path will be used. If a `string` is given will
 	 *     it be used for path to look for configuration files in. If an object is
 	 *     passed will it assume a valid `ConfigOptions` instance.
-	 * @param  {undefined|ConfigOptions}                    default_options
-	 *     The default configuration options used for instance. This is applied
-	 *     first, making it possible to overwrite with `option`, either as a
-	 *     string path or as a ConfigOptions object.
 	 */
-	constructor(
-		options: undefined|string|ConfigOptions = undefined,
-		default_options: ConfigOptions = {}
-	) {
-		// Merge provided options with defaults.
-		let _options: ConfigOptions = DEFAULT_OPTIONS; // = merge(DEFAULT_OPTIONS, options);
-
-		// Add `string` path to options if provided.
+	constructor(options: string|ConfigOptions = {}) {
+		// Cast string options to object with path.
 		if (typeof options === "string") {
-			_options = merge(_options, { path: options });
-		}
-		// Merge `object` path with options if provided.
-		else if (typeof options === "object") {
-			_options = merge(_options, options);
+			options = { path: options };
 		}
 
-		// Bind options to instance property.
-		this.options = _options;
+		// Merge and bind options to instance property.
+		this.options = merge({}, DEFAULT_OPTIONS, options);
 
 		// Add `cwd` and `env` to config.
 		if (process) {
@@ -123,19 +143,18 @@ export class Config {
 		}
 
 		// Try loading default config file.
-		try {
-			if (this.options.load_default) {
-				this.load("default");
-			}
-		} catch (e) {}
+		if (this.options.load_default) {
+			try { this.load("default"); }
+			catch (e) {}
+		}
 
 		// Try loading environment config file.
-		try {
-			if (this.options.load_env) {
-				this.load(this.get("env"));
+		if (this.options.load_env) {
+			try { this.load(this.get("env")); }
+			catch (e) {
+				// TODO: Log on logger.
+				// console.log(`Failed to load environment config file ${this.config_path}/${this.get("env")}.json.`);
 			}
-		} catch (e) {
-			// console.log(`Failed to load environment config file ${this.config_path}/${this.get("env")}.json.`);
 		}
 
 		// Overwrite with mapped environment variables.
@@ -150,7 +169,7 @@ export class Config {
 
 				// Determine what key to set for value.
 				let key: string;
-				if      (typeof m === "string") key = m;
+				if (typeof m === "string") key = m;
 				// else if (typeof m === "object") key = m.map;
 				else continue;
 
@@ -295,36 +314,5 @@ export class Config {
 	}
 }
 
-/**
- * Internal singleton storage for configs.
- *
- * @type {Object}
- */
-let _configs: ConfigStore = {};
-
-/**
- * Returns existing config for path, or create a new instance.
- *
- * @param  {string = DEFAULT_CONFIG_PATH}        path
- *     The path to where the configuration files are stored. Defaults to
- *     `DEFAULT_CONFIG_PATH` if none is given.
- * @param  {undefined|ConfigOptions = undefined} options
- *     Additional configuration options to be used for the `Config` instance.
- * @return {Config}
- *     Returns existing `Config` instance with given `path` or a newly created
- *     if none was found.
- */
-export function init(path: string = DEFAULT_CONFIG_PATH, options?: ConfigOptions) : Config {
-	if (!_configs[path]) _configs[path] = new Config(path, options);
-	return _configs[path];
-}
-
-/**
- * Helper function to get value from default `Config` instance.
- *
- * @param  {string} key Which key to look for.
- * @return {any}        Returns value found for `key` on default config.
- */
-export function config(key: string, fallback?: any) : any {
-	return init().get(key, fallback);
-}
+// Export Config as default.
+export default Config;

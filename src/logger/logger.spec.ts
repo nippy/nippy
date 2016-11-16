@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import { Logger, DEFAULT_LOGGER, DEFAULT_LOGGER_CONFIG } from "./logger";
+import { Logger, DEFAULT_LOGGER, DEFAULT_LOGGER_OPTIONS } from "./logger";
 
 describe("Logger", () => {
 	let main = new Logger();
@@ -8,7 +8,7 @@ describe("Logger", () => {
 	let SYMBOL = Symbol();
 	let sym = new Logger(SYMBOL);
 
-	describe("new (name, config)", () => {
+	describe("new (name, options, nippy)", () => {
 		it("should default `name` to value defined by `DEFAULT_LOGGER`", () => {
 			expect(main.name).to.be.equal(DEFAULT_LOGGER);
 		});
@@ -19,10 +19,10 @@ describe("Logger", () => {
 		});
 	});
 
-	describe(".config", () => {
+	describe(".options", () => {
 		it("should be set to the full configuration used for the instance", () => {
-			let c = Logger.get().config;
-			let d = DEFAULT_LOGGER_CONFIG;
+			let c = Logger.get().options;
+			let d = DEFAULT_LOGGER_OPTIONS;
 
 			expect(c.logPath).to.be.equal(d.logPath);
 			expect(c.exitOnError).to.be.equal(d.exitOnError);

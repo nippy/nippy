@@ -3,7 +3,7 @@ import * as fs from "fs-extra";
 import { merge } from "lodash";
 import * as winston from "winston";
 
-import { Nippy, config } from "../";
+import { Nippy, Config } from "../";
 
 export interface LoggerOptions {
 	path?: string;
@@ -47,7 +47,7 @@ export const DEFAULT_FILE_TRANSPORT: winston.FileTransportOptions = {
  * The default configuration used for a new Logger instance.
  */
 export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
-	logPath: config("logger.logPath", null) || config("paths.logs", null) || "/var/log",
+	logPath: Config.get("logger.logPath", null) || Config.get("paths.logs", null) || "/var/log",
 	exitOnError: false,
 	handleExceptions: true,
 	transports: [],
@@ -82,6 +82,19 @@ export class Logger {
 	 * List of previously created loggers.
 	 */
 	private static _loggers: { [name: string]: Logger } = {};
+
+	/**
+	 * Returns Logger instance identified by `name`, creating if it doesn't exist.
+	 *
+	 * @param  {string|symbol = DEFAULT_LOGGER} name
+	 *         The name of the logger to return.
+	 * @return {Logger}
+	 *         Returns the existing, or newly created, Logger instance.
+	 */
+	static get(name: string|symbol = DEFAULT_LOGGER) : Logger {
+		if (!Logger._loggers[name]) { Logger._loggers[name] = new Logger(name); }
+		return Logger._loggers[name];
+	}
 
 	/**
 	 * Creates a new Logger instance identified by `name` using `options`.
@@ -193,19 +206,6 @@ export class Logger {
 		Logger._loggers[this.name] = this;
 	}
 
-	/**
-	 * Returns Logger instance identified by `name`, creating if it doesn't exist.
-	 *
-	 * @param  {string|symbol = DEFAULT_LOGGER} name
-	 *         The name of the logger to return.
-	 * @return {Logger}
-	 *         Returns the existing, or newly created, Logger instance.
-	 */
-	static get(name: string|symbol = DEFAULT_LOGGER) : Logger {
-		if (!Logger._loggers[name]) { Logger._loggers[name] = new Logger(name); }
-		return Logger._loggers[name];
-	}
-
 	// Alias -> `winston.log`
 	log(level: string, msg: string, ...args: any[]) : Logger { return this.winston.log(level, msg, ...args) && this; }
 
@@ -221,3 +221,6 @@ export class Logger {
 	// Alias -> `winston.warn`
 	warn(msg: string, ...args) : Logger { return this.winston.warn(msg, ...args) && this; }
 }
+
+// Export Logger as default.
+export default Logger;

@@ -9,8 +9,8 @@ import { camelCase, merge } from "lodash";
 import * as morgan from "morgan";
 import * as winston from "winston";
 
-import * as config from "./config";
-import * as logger from "./logger";
+import Config, * as _config from "./config";
+import Logger, * as _logger from "./logger";
 
 /**
  * Interface defining a list of middleware.
@@ -27,7 +27,7 @@ export interface MiddlewareList {
  * @interface
  */
 export interface NippyOptions {
-	logger?: undefined|logger.LoggerOptions;
+	logger?: undefined|_logger.LoggerOptions;
 
 	// bodyParser: boolean|"json"|"raw"|"text"|"urlencoded";
 	// TODO: Support other body parsers?
@@ -61,7 +61,7 @@ const DEFAULT_NIPPY_OPTIONS: NippyOptions = {
 	helmet: null,
 	morgan: [
 		process && process.env.NODE_ENV === "development" ? "dev" : "combined",
-		{ stream: { write: (msg) => logger.Logger.get("access").info(msg.replace(/(.*)\s$/, "$1")) } }
+		{ stream: { write: (msg) => Logger.get("access").info(msg.replace(/(.*)\s$/, "$1")) } }
 	]
 };
 
@@ -69,8 +69,8 @@ export abstract class Application {
 	name: string;
 	options: NippyOptions;
 	express: express.Application;
-	config: config.Config;
-	logger: logger.Logger;
+	config: Config;
+	logger: Logger;
 
 	all: ec.IRouterMatcher<this>;
 	get: ec.IRouterMatcher<this>;
@@ -86,8 +86,8 @@ export abstract class Application {
 export class Nippy implements Application {
 	public options: NippyOptions;
 	public express: express.Application;
-	public config: config.Config;
-	public logger: logger.Logger;
+	public config: Config;
+	public logger: Logger;
 
 	constructor(public name: string, options?: NippyOptions) {
 		// The Express application.
@@ -104,10 +104,10 @@ export class Nippy implements Application {
 		}
 
 		// Add default config instance.
-		this.config = config.init();
+		this.config = Config.init();
 
 		// Create new logger instance.
-		this.logger = new logger.Logger(undefined, options && options.logger, this);
+		this.logger = new Logger(_logger.DEFAULT_LOGGER, options && options.logger, this);
 
 		// Merge provided options with defaults.
 		this.options = options = merge(DEFAULT_NIPPY_OPTIONS, _options);
@@ -152,7 +152,7 @@ export class Nippy implements Application {
 		let port
 			= typeof args[0] === "number"
 			? args.shift()
-			: config.config("server.port")
+			: this.config.get("server.port")
 			;
 
 		// Yank out callback, so it can be wrapped.
