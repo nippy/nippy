@@ -152,7 +152,7 @@ export class Nippy implements Application {
 		let port
 			= typeof args[0] === "number"
 			? args.shift()
-			: this.config.get("server.port")
+			: this.config.get("server.port", process.env.NODE_ENV === "production" ? 80 : 8080)
 			;
 
 		// Yank out callback, so it can be wrapped.
