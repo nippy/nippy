@@ -172,9 +172,10 @@ export class Nippy implements Application {
 		return server;
 	}
 
-	// engine(ext: string, fn: Function) : this { return this.express.engine(ext, fn) && this; }
-	// set(setting: string, val: any) : this { return this.express.set(setting, val) && this; }
-	// get(name: string) : any { return this.express.get(name); }
+	engine(ext: string, fn: Function) : this { return this.express.engine(ext, fn) && this; }
+	set(setting: string, val: any)    : this { return this.express.set(setting, val) && this; }
+	// TODO: Fix `.get(name: string)`.
+
 	// // TODO: Get better typing for param.
 	// param(...args) : this { return this.express.param.apply(this.express, args) && this; }
 	// path() : string { return this.express.path(); }
@@ -187,14 +188,14 @@ export class Nippy implements Application {
 	// // TODO: Get better typing for render.
 	// render(...args) : this { return this.express.render.apply(this.express, args) && this; }
 
-	all(path: ec.PathParams, ...handlers)    { return this.express.all(path, ...handlers) && this; }
-	get(path: ec.PathParams, ...handlers)    { return this.express.get(path, ...handlers) && this; }
-	post(path: ec.PathParams, ...handlers)   { return this.express.post(path, ...handlers) && this; }
-	put(path: ec.PathParams, ...handlers)    { return this.express.put(path, ...handlers) && this; }
-	delete(path: ec.PathParams, ...handlers) { return this.express.delete(path, ...handlers) && this; }
-	patch(path: ec.PathParams, ...handlers)  { return this.express.patch(path, ...handlers) && this; }
-	head(path: ec.PathParams, ...handlers)   { return this.express.head(path, ...handlers) && this; }
-	use(...handlers)                         { return this.express.use(...handlers) && this; }
+	all(path: ec.PathParams, ...handlers)    : this { return this.express.all(path, ...handlers) && this; }
+	get(path: ec.PathParams, ...handlers)    : this { return this.express.get(path, ...handlers) && this; }
+	post(path: ec.PathParams, ...handlers)   : this { return this.express.post(path, ...handlers) && this; }
+	put(path: ec.PathParams, ...handlers)    : this { return this.express.put(path, ...handlers) && this; }
+	delete(path: ec.PathParams, ...handlers) : this { return this.express.delete(path, ...handlers) && this; }
+	patch(path: ec.PathParams, ...handlers)  : this { return this.express.patch(path, ...handlers) && this; }
+	head(path: ec.PathParams, ...handlers)   : this { return this.express.head(path, ...handlers) && this; }
+	use(...handlers)                         : this { return this.express.use(...handlers) && this; }
 	route(prefix: ec.PathParams)             { return this.express.route(prefix); }
 }
 
