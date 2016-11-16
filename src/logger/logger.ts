@@ -12,29 +12,26 @@ export interface LoggerOptions {
 	handleExceptions?: boolean;
 	transports?: winston.TransportInstance[];
 
-	console?: boolean|string|winston.ConsoleTransportOptions;
-	debug?:   boolean|string|winston.FileTransportOptions;
-	info?:    boolean|string|winston.FileTransportOptions;
-	warn?:    boolean|string|winston.FileTransportOptions;
-	error?:   boolean|string|winston.FileTransportOptions;
+	console?: boolean | string | winston.ConsoleTransportOptions;
+	debug?:   boolean | string | winston.FileTransportOptions;
+	info?:    boolean | string | winston.FileTransportOptions;
+	warn?:    boolean | string | winston.FileTransportOptions;
+	error?:   boolean | string | winston.FileTransportOptions;
 }
 
 /**
- * The name of the default logger to be used, when no name is provided.
- */
-export const DEFAULT_LOGGER: symbol = Symbol("default");
-
-/**
  * The default configuration used for console transports.
+ * @type {winston.ConsoleTransportOptions}
  */
 export const DEFAULT_CONSOLE_TRANSPORT: winston.ConsoleTransportOptions = {
-	level: process.env.NODE_ENV === "production" ? "verbose" : "debug",
+	level: process.env.NODE_ENV === "development" ? "debug" : "verbose",
 	json: false,
 	colorize: true
 };
 
 /**
  * The default configuration used for file transports.
+ * @type {winston.FileTransportOptions}
  */
 export const DEFAULT_FILE_TRANSPORT: winston.FileTransportOptions = {
 	json: true,
@@ -44,10 +41,27 @@ export const DEFAULT_FILE_TRANSPORT: winston.FileTransportOptions = {
 };
 
 /**
+ * The name of the default logger to be used, when no name is provided.
+ * @type {symbol}
+ */
+export const DEFAULT_LOGGER: symbol = Symbol("default");
+
+/**
+ * The default path the logger should store log files in.
+ * @type {string}
+ */
+export const DEFAULT_LOGGER_PATH: string
+	=  Config.get("logger.logPath", null)
+	|| Config.get("logger.path", null)
+	|| Config.get("paths.logs", null)
+	|| process.env.NODE_ENV === "development" ? "./data/logs" : "/var/log";
+
+/**
  * The default configuration used for a new Logger instance.
+ * @type {LoggerOptions}
  */
 export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
-	logPath: Config.get("logger.logPath", null) || Config.get("paths.logs", null) || "/var/log",
+	logPath: DEFAULT_LOGGER_PATH,
 	exitOnError: false,
 	handleExceptions: true,
 	transports: [],
@@ -65,33 +79,45 @@ export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
 export class Logger {
 	/**
 	 * The Nippy instance responsible for instantiating the Logger.
+	 * @public
+	 * @readonly
+	 * @type {Nippy|undefined}
 	 */
-	public readonly nippy: Nippy|undefined;
+	public readonly nippy: Nippy | undefined;
 
 	/**
 	 * The Winston instance belonging to the Logger instance.
+	 * @public
+	 * @readonly
+	 * @type {winston.LoggerInstance}
 	 */
 	public readonly winston: winston.LoggerInstance;
 
 	/**
 	 * The Logger configuration, as read-only, used for current instance.
+	 * @public
+	 * @readonly
+	 * @type {LoggerOptions}
 	 */
 	public readonly options: LoggerOptions;
 
 	/**
 	 * List of previously created loggers.
+	 * @private
 	 */
 	private static _loggers: { [name: string]: Logger } = {};
 
 	/**
 	 * Returns Logger instance identified by `name`, creating if it doesn't exist.
 	 *
+	 * @public
+	 * @static
 	 * @param  {string|symbol = DEFAULT_LOGGER} name
 	 *         The name of the logger to return.
 	 * @return {Logger}
 	 *         Returns the existing, or newly created, Logger instance.
 	 */
-	static get(name: string|symbol = DEFAULT_LOGGER) : Logger {
+	public static get(name: string|symbol = DEFAULT_LOGGER) : Logger {
 		if (!Logger._loggers[name]) { Logger._loggers[name] = new Logger(name); }
 		return Logger._loggers[name];
 	}
@@ -99,6 +125,7 @@ export class Logger {
 	/**
 	 * Creates a new Logger instance identified by `name` using `options`.
 	 *
+	 * @constructor
 	 * @param  {string|symbol = DEFAULT_LOGGER}         name
 	 *         The name to use for the Logger instance.
 	 * @param  {LoggerOptions = DEFAULT_LOGGER_OPTIONS} options
@@ -128,6 +155,9 @@ export class Logger {
 
 		// Merge with default options.
 		options = merge({}, DEFAULT_LOGGER_OPTIONS, options);
+
+		// List of errors encountered during instantiating.
+		let errors: string[] = [];
 
 		// Remap root level transports to the `transports` property on options.
 		let transports: winston.TransportInstance[] = options.transports || [];
@@ -175,15 +205,26 @@ export class Logger {
 						let logPath = transport.logPath || options.logPath;
 						filename = path.join(logPath, filename);
 
-						// Ensure folder exists.
-						fs.ensureDirSync(path.dirname(filename));
-
 						// Set on transport.
 						transport.filename = filename;
 					}
 
+					// Ensure log file is writable.
+					try {
+						fs.ensureFileSync(transport.filename);
+						fs.accessSync(transport.filename, fs.constants.W_OK);
+					} catch (e) {
+						// Push error message to be processed later.
+						errors.push(`Log file for transport "${transport.name}" (${transport.filename}) is not writable. This transport will NOT be added.`);
+
+						// Continue loop, since can't use this transport.
+						continue;
+					}
+
 					// Push to transports.
 					transports.push(new winston.transports.File(transport));
+
+					// Break file transports.
 					break;
 
 				// In case it's not a transport.
@@ -204,6 +245,9 @@ export class Logger {
 
 		// Add instance to list of loggers.
 		Logger._loggers[this.name] = this;
+
+		// Log any errors encountered.
+		errors.forEach(e => this.error(e));
 	}
 
 	// Alias -> `winston.log`
@@ -213,7 +257,7 @@ export class Logger {
 	debug(msg: string, ...args) : Logger { return this.winston.debug(msg, ...args) && this; }
 
 	// Alias -> `winston.error`
-	error(msg: string, ...args) : Logger { return this.winston.debug(msg, ...args) && this; }
+	error(msg: string, ...args) : Logger { return this.winston.error(msg, ...args) && this; }
 
 	// Alias -> `winston.info`
 	info(msg: string, ...args) : Logger { return this.winston.info(msg, ...args) && this; }
