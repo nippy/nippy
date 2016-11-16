@@ -8,60 +8,64 @@ export interface Task {
 	task?: (done?) => any;
 };
 
-export interface TaskList {
-	[name: string]: Task;
-};
+export class TaskList {
+	constructor(private gulp) {}
+
+	default: Task = { before: ["nodemon", "test", "watch"] };
+	del: Task = { task: () => del("dist") };
+
+	compile: Task = {
+		before: ["del"],
+		task: () => {
+			return this.gulp.src(`tsconfig.json`, { read: false })
+			.pipe(shell("$(npm bin)/tsc -p <%= file.path %>"));
+		}
+	};
+
+	nodemon: Task = {
+		before: ["compile"],
+		task: (done) => {
+			return nodemon({
+				ext: "js json",
+				env: { "NODE_ENV": "development" },
+				ignore: [
+					"data/",
+					"node_modules/"
+				]
+			}).once("start", done);
+		}
+	};
+
+	test: Task = {
+		task: () => {
+			return this.gulp.src(`src/**/*.spec.ts`, { read: false })
+			.pipe(mocha({}));
+		}
+	};
+
+	watch: Task = {
+		task: (done) => {
+			this.gulp.watch([`src/**/*`], ["test", "compile"]);
+		}
+	};
+}
 
 /**
  * Registers the default gulp tasks used for development of Nippy services.
  */
-export function registerGulpTasks(gulp) {
-	let tasks: TaskList = {
-		default: { before: ["nodemon", "test", "watch"] },
-		del: { task: () => del("dist") },
+export function registerGulp(gulp, register_tasks = true) : TaskList {
+	let tasks = new TaskList(gulp);
 
-		compile: {
-			before: ["del"],
-			task: () => {
-				return gulp.src(`tsconfig.json`, { read: false })
-				.pipe(shell("$(npm bin)/tsc -p <%= file.path %>"));
-			}
-		},
+	if (register_tasks) {
+		for (let name in tasks) {
+			let task = tasks[name];
 
-		nodemon: {
-			before: ["compile"],
-			task: (done) => {
-				return nodemon({
-					ext: "js json",
-					env: { "NODE_ENV": "development" },
-					ignore: [
-						"data/",
-						"node_modules/"
-					]
-				}).once("start", done);
-			}
-		},
+			let before = task.before || null;
+			let func = task.task || null;
 
-		test: {
-			task: () => {
-				return gulp.src(`src/**/*.spec.ts`, { read: false })
-				.pipe(mocha({}));
-			}
-		},
-
-		watch: {
-			task: (done) => {
-				gulp.watch([`src/**/*`], ["test", "compile"]);
-			}
+			gulp.task(name, before, func);
 		}
-	};
-
-	for (let name in tasks) {
-		let task = tasks[name];
-
-		let before = task.before || null;
-		let func = task.task || null;
-
-		gulp.task(name, before, func);
 	}
+
+	return tasks;
 };
