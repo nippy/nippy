@@ -1,3 +1,3 @@
 import * as gulp from "gulp";
-import { registerGulpTasks } from "./src/gulp";
-registerGulpTasks(gulp);
+import { registerGulp } from "./src/gulp";
+registerGulp(gulp);

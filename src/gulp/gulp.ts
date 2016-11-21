@@ -6,7 +6,7 @@ import * as shell from "gulp-shell";
 export interface Task {
 	before?: string[];
 	task?: (done?) => any;
-};
+}
 
 export class TaskList {
 	constructor(private gulp) {}
@@ -68,4 +68,4 @@ export function registerGulp(gulp, register_tasks = true) : TaskList {
 	}
 
 	return tasks;
-};
+}
