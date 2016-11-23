@@ -1,7 +1,12 @@
 {
   "name": "nippy",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Fast, opinionated, minimalist micro service framework.",
+  "license": "UNLICENSED",
+  "author": "Webology (https://webology.no)",
+  "contributors": [
+    "Torkild Dyvik Olsen <torkild@webology.no> (https://webology.no)"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -32,6 +37,8 @@
     "typescript": "^2.1.1"
   },
   "devDependencies": {
+    "@nippy/config": "./modules/config",
+    "@nippy/logger": "./modules/logger",
     "@types/body-parser": "0.0.33",
     "@types/chai": "^3.4.34",
     "@types/compression": "0.0.33",

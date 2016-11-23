@@ -3,7 +3,8 @@ import * as fs from "fs-extra";
 import { merge } from "lodash";
 import * as winston from "winston";
 
-import { Nippy, Config } from "../";
+import { Nippy } from "@nippy/core";
+import { Config } from "@nippy/config";
 
 export interface LoggerOptions {
 	path?: string;

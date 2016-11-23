@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import { merge } from "lodash";
 
-import { Logger } from "../logger";
+import { Logger } from "@nippy/logger";
 
 // TODO: Find a better way to define default values for environment variables.
 // /**
