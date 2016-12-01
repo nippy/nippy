@@ -13,7 +13,7 @@
     "target": "es6",
     "lib": ["es5", "es6", "es7", "dom"],
     "rootDir": ".",
-    "outDir": "../../dist/package-dist/config",
+    "outDir": "../../dist/packages-dist/config",
     "paths": {
       "@nippy/*": ["../../dist/all/*"]
     }
