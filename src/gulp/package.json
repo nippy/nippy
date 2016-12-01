@@ -1,7 +1,7 @@
 {
-  "name": "@nippy/config",
+  "name": "@nippy/gulp",
   "version": "PLACEHOLDER-VERSION",
-  "description": "Nippy - class and helpers to easily manage application configurations",
+  "description": "Nippy - gulp tasks and tools for easy setup",
   "main": "index.js",
   "typings": "index.d.ts",
   "author": "PLACEHOLDER-AUTHOR",
@@ -11,6 +11,12 @@
     "url": "PLACEHOLDER-REPO-URL"
   },
   "peerDependencies": {
-    "@nippy/logger": "PLACEHOLDER-VERSION"
+    "gulp": "^3.9.1"
+  },
+  "dependencies": {
+    "del": "^2.2.2",
+    "gulp-mocha": "^3.0.1",
+    "gulp-nodemon": "^2.2.1",
+    "gulp-shell": "^0.5.2"
   }
 }

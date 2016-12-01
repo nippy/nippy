@@ -7,7 +7,6 @@ import * as express from "express";
 import * as helmet from "helmet";
 import { camelCase, merge } from "lodash";
 import * as morgan from "morgan";
-import * as winston from "winston";
 
 import Config, * as _config from "@nippy/config";
 import Logger, * as _logger from "@nippy/logger";

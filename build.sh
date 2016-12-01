@@ -33,10 +33,14 @@ for MODULE in "${MODULES[@]}"
 do
 	echo "===== MODULE: ${MODULE}"
 	MODULE_DIR=${SRC_DIR}/${MODULE}
+	DEST_DIR=${DIST_DIR}/package-dist/${MODULE}
 
 	# Compile TS
 	echo "    - Compiling: \$(npm bin)/tsc -p ${SRC_DIR}/tsconfig-build.json"
 	$TSC -p ${MODULE_DIR}/tsconfig-build.json
 
-	# Fix package.json
+	# Copy static files
+	cp ${MODULE_DIR}/package.json ${DEST_DIR}/
+	cp ./LICENSE ${DEST_DIR}/
+	cp ./README.md ${DEST_DIR}/ # TODO: Use module readme if found.
 done

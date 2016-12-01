@@ -2,13 +2,15 @@
   "name": "nippy",
   "version": "1.0.0-beta.1",
   "description": "Fast, opinionated, minimalist micro service framework.",
-  "license": "UNLICENSED",
   "author": "Webology (https://webology.no)",
-  "contributors": [
-    "Torkild Dyvik Olsen <torkild@webology.no> (https://webology.no)"
-  ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://github.com/nippy/nippy",
+  "bugs": "https://github.com/nippy/nippy/issues",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:nippy/nippy.git"
+  },
   "scripts": {
     "test": "gulp test"
   },
@@ -37,8 +39,6 @@
     "typescript": "^2.1.1"
   },
   "devDependencies": {
-    "@nippy/config": "./modules/config",
-    "@nippy/logger": "./modules/logger",
     "@types/body-parser": "0.0.33",
     "@types/chai": "^3.4.34",
     "@types/compression": "0.0.33",

@@ -55,7 +55,7 @@ export class TaskList {
 				this.gulp.watch([`src/**/*`], ["test", "compile"]);
 			}
 		},
-	}
+	};
 }
 
 /**
