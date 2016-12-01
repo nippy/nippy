@@ -13,9 +13,9 @@
     "target": "es6",
     "lib": ["es5", "es6", "es7", "dom"],
     "rootDir": ".",
-    "outDir": "../../dist/config",
+    "outDir": "../../dist/package-dist/config",
     "paths": {
-      "@nippy/logger": ["../../dist/all/logger"]
+      "@nippy/*": ["../../dist/all/*"]
     }
   },
   "files": [

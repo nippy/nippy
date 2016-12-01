@@ -16,7 +16,7 @@ app.listen(3000);
 
 ## Installation
 
-`$ npm install nippy`
+`$ npm install --save @nippy/core`
 
 ## Features
 
