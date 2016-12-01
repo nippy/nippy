@@ -1,13 +1,13 @@
 {
-  "name": "@nippy/config",
+  "name": "@nippy/logger",
   "version": "PLACEHOLDER-VERSION",
-  "description": "Nippy - class and helpers to easily manage application configurations",
+  "description": "Nippy - class and helpers to easily manage application logging",
   "main": "index.js",
   "typings": "index.d.ts",
   "author": "PLACEHOLDER-AUTHOR",
   "license": "PLACEHOLDER-LICENSE",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nippy/"
+    "url": "PLACEHOLDER-GIT-URL"
   }
 }

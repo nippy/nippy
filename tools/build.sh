@@ -2,7 +2,7 @@
 
 TOOLS_DIR=`dirname $0`
 ROOT_DIR=$TOOLS_DIR/..
-MODULES_DIR=$ROOT_DIR/modules
+SRC_DIR=$ROOT_DIR/src
 
 TSC=$(npm bin)/tsc
 
@@ -13,7 +13,7 @@ MODULES=(
 for MODULE in ${MODULES[@]}
 do
 	echo "===== MODULE: ${MODULE}"
-	M=${MODULES_DIR}/${MODULE}
+	M=${SRC_DIR}/${MODULE}
 
 	# Compile TS
 	echo "  --- Compiling: ${TSC} -p ${M}/tsconfig.json"

@@ -1,0 +1,13 @@
+{
+  "name": "@nippy/core",
+  "version": "PLACEHOLDER-VERSION",
+  "description": "Nippy - core server",
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "author": "PLACEHOLDER-AUTHOR",
+  "license": "PLACEHOLDER-LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "PLACEHOLDER-GIT-URL"
+  }
+}
