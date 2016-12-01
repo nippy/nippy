@@ -20,6 +20,6 @@
 		"*.ts",
 		"**/*.ts"
 	],
-	"atom": { "rewriteTsConfig": true },
+	"atom": { "rewriteTsConfig": false },
 	"compileOnSave": false
 }

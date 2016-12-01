@@ -10,14 +10,16 @@ MODULES=(
 	config
 )
 
-for MODULE in ${MODULES[@]}
-do
-	echo "===== MODULE: ${MODULE}"
-	M=${SRC_DIR}/${MODULE}
+$TSC -p ${SRC_DIR}/tsconfig.json
+
+#for MODULE in ${MODULES[@]}
+#do
+#	echo "===== MODULE: ${MODULE}"
+#	M=${SRC_DIR}/${MODULE}
 
 	# Compile TS
-	echo "  --- Compiling: ${TSC} -p ${M}/tsconfig.json"
-	$TSC -p ${M}/tsconfig.json
+#	echo "  --- Compiling: ${TSC} -p ${M}/tsconfig.json"
+#	$TSC -p ${M}/tsconfig.json
 
 	# Fix package.json
-done
+#done

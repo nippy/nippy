@@ -11,13 +11,15 @@ export interface LoggerOptions {
 	logPath?: string;
 	exitOnError?: boolean;
 	handleExceptions?: boolean;
-	transports?: winston.TransportInstance[];
+	transports?: (winston.TransportInstance & {[idx: string]: any})[];
 
 	console?: boolean | string | winston.ConsoleTransportOptions;
 	debug?:   boolean | string | winston.FileTransportOptions;
 	info?:    boolean | string | winston.FileTransportOptions;
 	warn?:    boolean | string | winston.FileTransportOptions;
 	error?:   boolean | string | winston.FileTransportOptions;
+
+	[idx: string]: any;
 }
 
 /**
@@ -255,16 +257,16 @@ export class Logger {
 	log(level: string, msg: string, ...args: any[]) : Logger { return this.winston.log(level, msg, ...args) && this; }
 
 	// Alias -> `winston.debug`
-	debug(msg: string, ...args) : Logger { return this.winston.debug(msg, ...args) && this; }
+	debug(msg: string, ...args: any[]) : Logger { return this.winston.debug(msg, ...args) && this; }
 
 	// Alias -> `winston.error`
-	error(msg: string, ...args) : Logger { return this.winston.error(msg, ...args) && this; }
+	error(msg: string, ...args: any[]) : Logger { return this.winston.error(msg, ...args) && this; }
 
 	// Alias -> `winston.info`
-	info(msg: string, ...args) : Logger { return this.winston.info(msg, ...args) && this; }
+	info(msg: string, ...args: any[]) : Logger { return this.winston.info(msg, ...args) && this; }
 
 	// Alias -> `winston.warn`
-	warn(msg: string, ...args) : Logger { return this.winston.warn(msg, ...args) && this; }
+	warn(msg: string, ...args: any[]) : Logger { return this.winston.warn(msg, ...args) && this; }
 }
 
 // Export Logger as default.

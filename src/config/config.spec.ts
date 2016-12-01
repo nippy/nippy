@@ -1,6 +1,6 @@
 import * as path from "path";
 import { expect } from "chai";
-import { rootFactory } from "../helpers";
+import { rootFactory } from "@nippy/core";
 
 let fix = rootFactory(__dirname, "fixtures");
 
