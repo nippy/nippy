@@ -8,8 +8,6 @@ import { Config } from "@nippy/config";
 const config = new Config();
 
 console.log(config.get("server.port"));
-
-app.listen(3000);
 ```
 
 ## Installation

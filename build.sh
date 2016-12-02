@@ -23,8 +23,7 @@ MODULES=(
 	logger
 )
 
-for MODULE in "${MODULES[@]}"
-do
+for MODULE in "${MODULES[@]}"; do
 	echo "===== MODULE: ${MODULE}"
 	SRC_DIR=./src/${MODULE}
 	DEST_DIR=./dist/packages-dist/${MODULE}
@@ -46,7 +45,7 @@ echo "    - Replacing placeholders"
 AUTHOR=$(node -p "require('./package.json').author" | sed -e 's/[\/&]/\\&/g')
 LICENSE=$(node -p "require('./package.json').license")
 REPO_URL=$(node -p "require('./package.json').repository.url" | sed -e 's/[\/&]/\\&/g')
-find ./dist/packages-dist/ -type f -name package.json -print0 | xargs -0 sed -i "s/PLACEHOLDER-VERSION/${VERSION_PREFIX}/g"
+find ./dist/packages-dist/ -type f -name package.json -print0 | xargs -0 sed -i "s/PLACEHOLDER-VERSION/${VERSION}/g"
 find ./dist/packages-dist/ -type f -name package.json -print0 | xargs -0 sed -i "s/PLACEHOLDER-AUTHOR/${AUTHOR}/g"
 find ./dist/packages-dist/ -type f -name package.json -print0 | xargs -0 sed -i "s/PLACEHOLDER-LICENSE/${LICENSE}/g"
 find ./dist/packages-dist/ -type f -name package.json -print0 | xargs -0 sed -i "s/PLACEHOLDER-REPO-URL/${REPO_URL}/g"
