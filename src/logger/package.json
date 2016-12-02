@@ -17,6 +17,7 @@
   "dependencies": {
     "fs-extra": "^1.0.0",
     "lodash.merge": "^4.6.0",
-    "winston": "^2.3.0"
+    "winston": "^2.3.0",
+    "@types/winston": "0.0.28"
   }
 }
