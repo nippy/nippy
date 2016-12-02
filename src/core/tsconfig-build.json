@@ -10,7 +10,7 @@
     "inlineSources": true,
     "module": "es2015",
     "moduleResolution": "node",
-    "target": "es6",
+    "target": "es5",
     "lib": ["es5", "es6", "es7", "dom"],
     "rootDir": ".",
     "outDir": "../../dist/packages-dist/core",

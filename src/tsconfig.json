@@ -12,7 +12,7 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "module": "commonjs",
+    "module": "es2015",
     "moduleResolution": "node",
     "target": "es6",
     "lib": ["es5", "es6", "es7", "dom"],
