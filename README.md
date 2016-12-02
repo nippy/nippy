@@ -4,8 +4,8 @@ Fast, opinionated, minimalist micro service framework for [node](1), backed by
 [express](2) and select middleware.
 
 ```ts
-import { nippy } from "nippy";
-const app = nippy();
+import { Nippy } from "@nippy/core";
+const app = new Nippy("My service");
 
 app.get("/", (req, res) => {
   res.send("Hello world");
@@ -16,7 +16,7 @@ app.listen(3000);
 
 ## Installation
 
-`$ npm install nippy`
+`$ npm install --save @nippy/core`
 
 ## Features
 

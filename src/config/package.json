@@ -1,0 +1,16 @@
+{
+  "name": "@nippy/config",
+  "version": "PLACEHOLDER-VERSION",
+  "description": "Nippy - class and helpers to easily manage application configurations",
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "author": "PLACEHOLDER-AUTHOR",
+  "license": "PLACEHOLDER-LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "PLACEHOLDER-REPO-URL"
+  },
+  "peerDependencies": {
+    "@nippy/logger": "PLACEHOLDER-VERSION"
+  }
+}

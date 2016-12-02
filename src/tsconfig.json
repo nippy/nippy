@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "inlineSources": true,
+    "strictNullChecks": true,
+    "stripInternal": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es6",
+    "lib": ["es5", "es6", "es7", "dom"],
+    "rootDir": ".",
+    "outDir": "../dist/all/",
+    "paths": {
+      "@nippy/*": ["./*"]
+    }
+  },
+	"compileOnSave": false
+}

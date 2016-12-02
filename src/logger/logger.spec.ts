@@ -28,9 +28,11 @@ describe("Logger", () => {
 			expect(c.exitOnError).to.be.equal(d.exitOnError);
 			expect(c.handleExceptions).to.be.equal(d.handleExceptions);
 
-			for (let t of c.transports || []) {
-				for (let p in d[t.name]) {
-					expect(t[p]).to.be.equal(d[t.name][p]);
+			if (c.transports) {
+				for (let t of c.transports) {
+					for (let p in d[t.name]) {
+						expect(d[t.name][p]).to.be.equal(t[p]);
+					}
 				}
 			}
 		});

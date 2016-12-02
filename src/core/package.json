@@ -1,0 +1,26 @@
+{
+  "name": "@nippy/core",
+  "version": "PLACEHOLDER-VERSION",
+  "description": "Nippy - core server",
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "author": "PLACEHOLDER-AUTHOR",
+  "license": "PLACEHOLDER-LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "PLACEHOLDER-REPO-URL"
+  },
+  "peerDependencies": {
+    "@nippy/config": "PLACEHOLDER-VERSION",
+    "@nippy/logger": "PLACEHOLDER-VERSION"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "compression": "^1.6.2",
+    "cors": "^2.8.1",
+    "helmet": "^2.3.0",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.merge": "^4.6.0",
+    "morgan": "^1.7.0"
+  }
+}

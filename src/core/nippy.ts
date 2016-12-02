@@ -7,10 +7,9 @@ import * as express from "express";
 import * as helmet from "helmet";
 import { camelCase, merge } from "lodash";
 import * as morgan from "morgan";
-import * as winston from "winston";
 
-import Config, * as _config from "./config";
-import Logger, * as _logger from "./logger";
+import Config, * as _config from "@nippy/config";
+import Logger, * as _logger from "@nippy/logger";
 
 /**
  * Interface defining a list of middleware.
@@ -61,7 +60,7 @@ const DEFAULT_NIPPY_OPTIONS: NippyOptions = {
 	helmet: null,
 	morgan: [
 		process && process.env.NODE_ENV === "development" ? "dev" : "combined",
-		{ stream: { write: (msg) => Logger.get("access").info(msg.replace(/(.*)\s$/, "$1")) } }
+		{ stream: { write: (msg: string) => Logger.get("access").info(msg.replace(/(.*)\s$/, "$1")) } }
 	]
 };
 
@@ -94,7 +93,7 @@ export class Nippy implements Application {
 		this.express = express();
 
 		// Temporary options in order to map camel case.
-		let _options = {};
+		let _options: NippyOptions = {};
 
 		// Map provided options to temporary hash.
 		if (options) {
@@ -147,7 +146,7 @@ export class Nippy implements Application {
 	 * @param  {[any]}       ...args Arguments to pass to `express.listen`.
 	 * @return {http.Server}         Returns the `Server` returned by Express.
 	 */
-	public listen(...args) : http.Server {
+	public listen(...args: any[]) : http.Server {
 		// Yank out port number, using `server.port` from config if undefined.
 		let port
 			= typeof args[0] === "number"
@@ -163,7 +162,7 @@ export class Nippy implements Application {
 			;
 
 		// Apply arguments to `express.listen`.
-		let server = this.express.listen.apply(this.express, [port].concat(args, [(...args) => {
+		let server = this.express.listen.apply(this.express, [port].concat(args, [(...args: any[]) => {
 			let a = server.address();
 			this.logger.log("info", `{%s} started on "%s:%s" (%s)`, this.name, a.address, a.port, a.family);
 		}]));
@@ -188,15 +187,15 @@ export class Nippy implements Application {
 	// // TODO: Get better typing for render.
 	// render(...args) : this { return this.express.render.apply(this.express, args) && this; }
 
-	all(path: ec.PathParams, ...handlers)    : this { return this.express.all(path, ...handlers) && this; }
-	get(path: ec.PathParams, ...handlers)    : this { return this.express.get(path, ...handlers) && this; }
-	post(path: ec.PathParams, ...handlers)   : this { return this.express.post(path, ...handlers) && this; }
-	put(path: ec.PathParams, ...handlers)    : this { return this.express.put(path, ...handlers) && this; }
-	delete(path: ec.PathParams, ...handlers) : this { return this.express.delete(path, ...handlers) && this; }
-	patch(path: ec.PathParams, ...handlers)  : this { return this.express.patch(path, ...handlers) && this; }
-	head(path: ec.PathParams, ...handlers)   : this { return this.express.head(path, ...handlers) && this; }
-	use(...handlers)                         : this { return this.express.use(...handlers) && this; }
-	route(prefix: ec.PathParams)             { return this.express.route(prefix); }
+	all(path: ec.PathParams, ...handlers: any[])    : this { return this.express.all(path, ...handlers) && this; }
+	get(path: ec.PathParams, ...handlers: any[])    : this { return this.express.get(path, ...handlers) && this; }
+	post(path: ec.PathParams, ...handlers: any[])   : this { return this.express.post(path, ...handlers) && this; }
+	put(path: ec.PathParams, ...handlers: any[])    : this { return this.express.put(path, ...handlers) && this; }
+	delete(path: ec.PathParams, ...handlers: any[]) : this { return this.express.delete(path, ...handlers) && this; }
+	patch(path: ec.PathParams, ...handlers: any[])  : this { return this.express.patch(path, ...handlers) && this; }
+	head(path: ec.PathParams, ...handlers: any[])   : this { return this.express.head(path, ...handlers) && this; }
+	use(...handlers: any[])                         : this { return this.express.use(...handlers) && this; }
+	route(prefix: ec.PathParams)                           { return this.express.route(prefix); }
 }
 
 /**

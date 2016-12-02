@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import { merge } from "lodash";
 
-import { Logger } from "../logger";
+import { Logger } from "@nippy/logger";
 
 // TODO: Find a better way to define default values for environment variables.
 // /**
@@ -41,7 +41,7 @@ export interface ConfigOptions {
  *
  * @interface
  */
-export interface ConfigStore {
+export interface ConfigsList {
 	[path: string]: Config;
 }
 
@@ -89,7 +89,12 @@ export class Config {
 	/**
 	 * List of previously created Config instances.
 	 */
-	private static _configs: { [path: string]: Config } = {};
+	private static _configs: ConfigsList = {};
+
+	/**
+	 * Index signature for config key/values.
+	 */
+	[name: string]: any;
 
 	/**
 	 * Returns existing config for path, or create a new instance.
@@ -301,7 +306,7 @@ export class Config {
 	 * @return {JSON}
 	 */
 	public toJSON() : JSON {
-		let json = {};
+		let json: {[key: string]: any} = {};
 
 		for (let key in this) {
 			// Make sure key is own property and not a reserved keyword.

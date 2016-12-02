@@ -1,0 +1,22 @@
+{
+  "name": "@nippy/logger",
+  "version": "PLACEHOLDER-VERSION",
+  "description": "Nippy - class and helpers to easily manage application logging",
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "author": "PLACEHOLDER-AUTHOR",
+  "license": "PLACEHOLDER-LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "PLACEHOLDER-REPO-URL"
+  },
+  "peerDependencies": {
+    "@nippy/core": "PLACEHOLDER-VERSION",
+    "@nippy/config": "PLACEHOLDER-VERSION"
+  },
+  "dependencies": {
+    "fs-extra": "^1.0.0",
+    "lodash.merge": "^4.6.0",
+    "winston": "^2.3.0"
+  }
+}

@@ -1,9 +1,16 @@
 {
   "name": "nippy",
-  "version": "0.0.1",
+  "version": "1.0.0-beta.2",
   "description": "Fast, opinionated, minimalist micro service framework.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "author": "Webology (https://webology.no)",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://github.com/nippy/nippy",
+  "bugs": "https://github.com/nippy/nippy/issues",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:nippy/nippy.git"
+  },
   "scripts": {
     "test": "gulp test"
   },

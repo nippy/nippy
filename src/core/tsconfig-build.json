@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "experimentalDecorators": true,
+    "strictNullChecks": true,
+    "stripInternal": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "module": "es2015",
+    "moduleResolution": "node",
+    "target": "es6",
+    "lib": ["es5", "es6", "es7", "dom"],
+    "rootDir": ".",
+    "outDir": "../../dist/packages-dist/core",
+    "paths": {
+      "@nippy/*": ["../../dist/all/*"]
+    }
+  },
+  "files": [
+    "index.ts"
+  ],
+	"compileOnSave": false
+}
