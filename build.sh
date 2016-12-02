@@ -35,10 +35,14 @@ do
 	echo "    - Copying static files"
 	cp ${SRC_DIR}/package.json ${DEST_DIR}/
 	cp ./LICENSE ${DEST_DIR}/
-	cp ./README.md ${DEST_DIR}/ # TODO: Use module readme if found.
+	cp ./README.md ${DEST_DIR}/
+	if [[ -f ${SRC_DIR}/README.md ]]; then
+		cp ${SRC_DIR}/README.md ${DEST_DIR}/
+	fi
 done
 
-echo "===== Replacing placeholders"
+echo "===== CLEANUP"
+echo "    - Replacing placeholders"
 AUTHOR=$(node -p "require('./package.json').author" | sed -e 's/[\/&]/\\&/g')
 LICENSE=$(node -p "require('./package.json').license")
 REPO_URL=$(node -p "require('./package.json').repository.url" | sed -e 's/[\/&]/\\&/g')
