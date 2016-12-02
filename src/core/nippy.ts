@@ -161,6 +161,24 @@ export class Nippy implements Application {
 			: () => {}
 			;
 
+		// Handle 404s
+		this.use((req: ec.Request, res: ec.Response, next: ec.NextFunction) => {
+			res.status(404).json({
+				error: true,
+				status: 404,
+				message: "Not Found"
+			});
+		});
+
+		// Handle other errors as 501
+		this.use((err: ec.ErrorRequestHandler, req: ec.Request, res: ec.Response, next: ec.NextFunction) => {
+			res.status(500).json({
+				error: true,
+				status: 500,
+				message: "Internal Server Error"
+			});
+		});
+
 		// Apply arguments to `express.listen`.
 		let server = this.express.listen.apply(this.express, [port].concat(args, [(...args: any[]) => {
 			let a = server.address();
