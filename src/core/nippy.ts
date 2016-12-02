@@ -198,16 +198,5 @@ export class Nippy implements Application {
 	route(prefix: ec.PathParams)                           { return this.express.route(prefix); }
 }
 
-/**
- * Helper function to create a new Nippy instance.
- *
- * @param  {string}       name    The name to be used for Nippy instance.
- * @param  {NippyOptions} options The options used to set up Nippy.
- * @return {Nippy}                Returns the application from Express.
- */
-export function nippy(name: string, options?: NippyOptions) : Nippy {
-	return new Nippy(name, options);
-}
-
-// Export `nippy` as default.
-export default nippy;
+// Export `Nippy` as default.
+export default Nippy;
