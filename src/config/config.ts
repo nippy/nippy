@@ -51,7 +51,7 @@ export interface ConfigsList {
  *
  * @constant {string}
  */
-const DEFAULT_CONFIG_PATH: string = path.resolve("config");
+const DEFAULT_CONFIG_PATH: string = (process && process.env && process.env.CONFIG_PATH) || path.resolve("config");
 
 /**
  * Default variables to map from environment variables.
