@@ -64,6 +64,14 @@ const DEFAULT_NIPPY_OPTIONS: NippyOptions = {
 	]
 };
 
+export interface RequestHandler {
+	(request: ec.Request, response: ec.Response) : any;
+}
+
+export interface RouterMatcher<T> {
+	(path: ec.PathParams, ...handlers: RequestHandler[]) : T;
+}
+
 export abstract class Application {
 	name: string;
 	options: NippyOptions;
@@ -71,14 +79,14 @@ export abstract class Application {
 	config: Config;
 	logger: Logger;
 
-	all: ec.IRouterMatcher<this>;
-	get: ec.IRouterMatcher<this>;
-	post: ec.IRouterMatcher<this>;
-	put: ec.IRouterMatcher<this>;
-	delete: ec.IRouterMatcher<this>;
-	patch: ec.IRouterMatcher<this>;
-	head: ec.IRouterMatcher<this>;
-	use: ec.IRouterHandler<this> & ec.IRouterMatcher<this>;
+	all: RouterMatcher<this>;
+	get: RouterMatcher<this>;
+	post: RouterMatcher<this>;
+	put: RouterMatcher<this>;
+	delete: RouterMatcher<this>;
+	patch: RouterMatcher<this>;
+	head: RouterMatcher<this>;
+	use: ec.IRouterHandler<this> & RouterMatcher<this>;
 	abstract route(prefix: ec.PathParams) : ec.IRoute;
 }
 
@@ -207,15 +215,15 @@ export class Nippy implements Application {
 	// // TODO: Get better typing for render.
 	// render(...args) : this { return this.express.render.apply(this.express, args) && this; }
 
-	all(path: ec.PathParams, ...handlers: any[])    : this { return this.express.all(path, ...handlers) && this; }
-	get(path: ec.PathParams, ...handlers: any[])    : this { return this.express.get(path, ...handlers) && this; }
-	post(path: ec.PathParams, ...handlers: any[])   : this { return this.express.post(path, ...handlers) && this; }
-	put(path: ec.PathParams, ...handlers: any[])    : this { return this.express.put(path, ...handlers) && this; }
-	delete(path: ec.PathParams, ...handlers: any[]) : this { return this.express.delete(path, ...handlers) && this; }
-	patch(path: ec.PathParams, ...handlers: any[])  : this { return this.express.patch(path, ...handlers) && this; }
-	head(path: ec.PathParams, ...handlers: any[])   : this { return this.express.head(path, ...handlers) && this; }
-	use(...handlers: any[])                         : this { return this.express.use(...handlers) && this; }
-	route(prefix: ec.PathParams)                           { return this.express.route(prefix); }
+	all(path: ec.PathParams, ...handlers: RequestHandler[])    : this { return this.express.all(path, ...handlers) && this; }
+	get(path: ec.PathParams, ...handlers: RequestHandler[])    : this { return this.express.get(path, ...handlers) && this; }
+	post(path: ec.PathParams, ...handlers: RequestHandler[])   : this { return this.express.post(path, ...handlers) && this; }
+	put(path: ec.PathParams, ...handlers: RequestHandler[])    : this { return this.express.put(path, ...handlers) && this; }
+	delete(path: ec.PathParams, ...handlers: RequestHandler[]) : this { return this.express.delete(path, ...handlers) && this; }
+	patch(path: ec.PathParams, ...handlers: RequestHandler[])  : this { return this.express.patch(path, ...handlers) && this; }
+	head(path: ec.PathParams, ...handlers: RequestHandler[])   : this { return this.express.head(path, ...handlers) && this; }
+	use(...handlers: any[])                                    : this { return this.express.use(...handlers) && this; }
+	route(prefix: ec.PathParams)                               : ec.IRoute { return this.express.route(prefix); }
 }
 
 // Export `Nippy` as default.
