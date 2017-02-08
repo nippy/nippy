@@ -22,5 +22,5 @@
       "@nippy/*": ["./*"]
     }
   },
-	"compileOnSave": false
+  "compileOnSave": false
 }

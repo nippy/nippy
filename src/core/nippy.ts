@@ -164,18 +164,20 @@ export class Nippy implements Application {
 		// Handle 404s
 		this.use((req: ec.Request, res: ec.Response, next: ec.NextFunction) => {
 			res.status(404).json({
-				error: true,
-				status: 404,
-				message: "Not Found"
+				error: {
+					status: 404,
+					message: "Not Found"
+				}
 			});
 		});
 
 		// Handle other errors as 501
 		this.use((err: ec.ErrorRequestHandler, req: ec.Request, res: ec.Response, next: ec.NextFunction) => {
 			res.status(500).json({
-				error: true,
-				status: 500,
-				message: "Internal Server Error"
+				error: {
+					status: 500,
+					message: "Internal Server Error"
+				}
 			});
 		});
 
