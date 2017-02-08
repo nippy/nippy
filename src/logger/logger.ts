@@ -254,19 +254,19 @@ export class Logger {
 	}
 
 	// Alias -> `winston.log`
-	log(level: string, msg: string, ...args: any[]) : Logger { return this.winston.log(level, msg, ...args) && this; }
+	log(level: string, msg: any, ...args: any[]) : Logger { return this.winston.log(level, msg, ...args) && this; }
 
 	// Alias -> `winston.debug`
-	debug(msg: string, ...args: any[]) : Logger { return this.winston.debug(msg, ...args) && this; }
+	debug(msg: any, ...args: any[]) : Logger { return this.winston.debug(msg, ...args) && this; }
 
 	// Alias -> `winston.error`
-	error(msg: string, ...args: any[]) : Logger { return this.winston.error(msg, ...args) && this; }
+	error(msg: any, ...args: any[]) : Logger { return this.winston.error(msg, ...args) && this; }
 
 	// Alias -> `winston.info`
-	info(msg: string, ...args: any[]) : Logger { return this.winston.info(msg, ...args) && this; }
+	info(msg: any, ...args: any[]) : Logger { return this.winston.info(msg, ...args) && this; }
 
 	// Alias -> `winston.warn`
-	warn(msg: string, ...args: any[]) : Logger { return this.winston.warn(msg, ...args) && this; }
+	warn(msg: any, ...args: any[]) : Logger { return this.winston.warn(msg, ...args) && this; }
 }
 
 // Export Logger as default.

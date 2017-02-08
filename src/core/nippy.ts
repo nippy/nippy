@@ -181,6 +181,7 @@ export class Nippy implements Application {
 
 		// Handle other errors as 501
 		this.use((err: ec.ErrorRequestHandler, req: ec.Request, res: ec.Response, next: ec.NextFunction) => {
+			this.logger.error(err);
 			res.status(500).json({
 				error: {
 					status: 500,
