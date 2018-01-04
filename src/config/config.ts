@@ -51,14 +51,22 @@ export interface ConfigsList {
  *
  * @constant {string}
  */
-const DEFAULT_CONFIG_PATH: string = (process && process.env && process.env.CONFIG_PATH) || path.resolve("config");
+export const DEFAULT_CONFIG_PATH: string = (process && process.env && process.env.CONFIG_PATH) || path.resolve("config");
+
+/**
+ * Default value for `NODE_ENV` when none is set. Opinionated, based on the
+ * possible worst case being that a production setup is running on a development
+ * machine, and not the opposite being possible development config leaking into
+ * a production environment.
+ */
+export const DEFAULT_NODE_ENV: string = "production";
 
 /**
  * Default variables to map from environment variables.
  *
  * @constant {ConfigEnvMapping}
  */
-const DEFAULT_ENV_MAPPING: ConfigEnvMapping = {
+export const DEFAULT_ENV_MAPPING: ConfigEnvMapping = {
 	NODE_ENV: "env",
 	PORT: "server.port"
 };
@@ -68,7 +76,7 @@ const DEFAULT_ENV_MAPPING: ConfigEnvMapping = {
  *
  * @contant {ConfigOptions}
  */
-const DEFAULT_OPTIONS: ConfigOptions = {
+export const DEFAULT_OPTIONS: ConfigOptions = {
 	path: DEFAULT_CONFIG_PATH,
 	load_default: true,
 	load_env: true,
@@ -180,6 +188,9 @@ export class Config {
 
 				// Determine what value to use.
 				let value: any = process.env[env]; // || typeof m === "object" && m.default;
+
+				// Set default environment in case no value for `NODE_ENV`.
+				if (!value && env === "NODE_ENV") value = DEFAULT_NODE_ENV;
 
 				// Continue if no value is defined.
 				if (!value && value !== false) continue;
