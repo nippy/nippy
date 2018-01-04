@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import { merge } from "lodash";
 
-import { Logger } from "@nippy/logger";
+// import { Logger } from "@nippy/logger";
 
 // TODO: Find a better way to define default values for environment variables.
 // /**
@@ -197,6 +197,10 @@ export class Config {
 	 *     path relative to `options.path` or as an absolute path.
 	 */
 	public load(file: string) : void {
+		if (typeof this.options.path !== "string") {
+			throw new Error("No configuration path option set.");
+		}
+
 		// Use given path or fallback to default.
 		file = path.isAbsolute(file) ? file : path.join(this.options.path, file);
 
@@ -214,7 +218,7 @@ export class Config {
 			}
 		} catch (e) {
 			// TODO: Replace with custom Error class.
-			throw new Error(`failed to load config file ${file}`);
+			throw new Error(`Failed to load config file ${file}.`);
 		}
 	}
 

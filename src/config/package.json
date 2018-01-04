@@ -11,6 +11,5 @@
     "url": "PLACEHOLDER-REPO-URL"
   },
   "peerDependencies": {
-    "@nippy/logger": "PLACEHOLDER-VERSION"
   }
 }
