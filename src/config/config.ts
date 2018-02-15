@@ -318,9 +318,9 @@ export class Config {
 	/**
 	 * Returns the current configuration being used as a JSON object.
 	 *
-	 * @return {JSON}
+	 * @return {any}
 	 */
-	public toJSON() : JSON {
+	public toJSON() : any {
 		let json: {[key: string]: any} = {};
 
 		for (let key in this) {
