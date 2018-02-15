@@ -161,15 +161,6 @@ export class Config {
 			catch (e) {}
 		}
 
-		// Try loading environment config file.
-		if (this.options.load_env) {
-			try { this.load(this.get("env")); }
-			catch (e) {
-				// TODO: Log on logger.
-				// console.log(`Failed to load environment config file ${this.config_path}/${this.get("env")}.json.`);
-			}
-		}
-
 		// Overwrite with mapped environment variables.
 		let env_mapping = this.options.env_mapping;
 		if (env_mapping) {
@@ -197,6 +188,15 @@ export class Config {
 
 				// Set value.
 				this.set(key, value);
+			}
+		}
+
+		// Try loading environment config file.
+		if (this.options.load_env) {
+			try { this.load(this.get("env")); }
+			catch (e) {
+				// TODO: Log on logger.
+				// console.log(`Failed to load environment config file ${this.config_path}/${this.get("env")}.json.`);
 			}
 		}
 	}
