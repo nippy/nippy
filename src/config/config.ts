@@ -151,14 +151,30 @@ export class Config {
 
 		// Add `cwd` and `env` to config.
 		if (process) {
-			if (process.cwd instanceof Function) this.set("cwd", process.cwd());
-			if (process.env && process.env.NODE_ENV) this.set("env", process.env.NODE_ENV);
+			if (process.cwd instanceof Function) {
+				this.set("cwd", process.cwd());
+			}
+
+			if (process.env && process.env.NODE_ENV) {
+				this.set("env", process.env.NODE_ENV);
+			} else {
+				this.set("env", DEFAULT_NODE_ENV);
+			}
 		}
 
 		// Try loading default config file.
 		if (this.options.load_default) {
 			try { this.load("default"); }
 			catch (e) {}
+		}
+
+		// Try loading environment config file.
+		if (this.options.load_env) {
+			try { this.load(this.get("env")); }
+			catch (e) {
+				// TODO: Log on logger.
+				// console.log(`Failed to load environment config file ${this.config_path}/${this.get("env")}.json.`);
+			}
 		}
 
 		// Overwrite with mapped environment variables.
@@ -188,15 +204,6 @@ export class Config {
 
 				// Set value.
 				this.set(key, value);
-			}
-		}
-
-		// Try loading environment config file.
-		if (this.options.load_env) {
-			try { this.load(this.get("env")); }
-			catch (e) {
-				// TODO: Log on logger.
-				// console.log(`Failed to load environment config file ${this.config_path}/${this.get("env")}.json.`);
 			}
 		}
 	}
