@@ -213,7 +213,23 @@ export class Config {
 	 * @param {string} file The configuration file to be loaded, either as a
 	 *     path relative to `options.path` or as an absolute path.
 	 */
-	public load(file: string) : void {
+	public load(file: string) : void;
+	public load(json: any) : void;
+	public load(fileOrJson: string|any) : void {
+		// Check if object, and if so load JSON directly.
+		if (typeof fileOrJson === "object") {
+			return this.loadJSON(fileOrJson);
+		}
+
+		// Check file is a string.
+		if (typeof fileOrJson !== "string") {
+			throw new TypeError("File passed to Config.load is not a string value.");
+		}
+
+		// Assign to file, now we know it's a string.
+		let file = fileOrJson;
+
+		// Ensure there is a base configuration path.
 		if (typeof this.options.path !== "string") {
 			throw new Error("No configuration path option set.");
 		}
@@ -228,14 +244,19 @@ export class Config {
 		// Try to read the file.
 		try {
 			let json = require(file);
-
-			// Apply json to config.
-			for (let key in json) {
-				this.set(key, json[key]);
-			}
+			return this.loadJSON(json);
 		} catch (e) {
 			// TODO: Replace with custom Error class.
 			throw new Error(`Failed to load config file ${file}.`);
+		}
+	}
+
+	/**
+	 * Loads a JSON object directly into instance.
+	 */
+	public loadJSON(json: any) : void {
+		for (let key in json) {
+			this.set(key, json[key]);
 		}
 	}
 
