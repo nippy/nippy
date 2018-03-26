@@ -1,5 +1,4 @@
 import * as path from "path";
-import * as fs from "fs-extra";
 import { merge } from "lodash";
 
 // import { Logger } from "@nippy/logger";
@@ -228,7 +227,7 @@ export class Config {
 
 		// Try to read the file.
 		try {
-			let json = fs.readJSONSync(file);
+			let json = require(file);
 
 			// Apply json to config.
 			for (let key in json) {
