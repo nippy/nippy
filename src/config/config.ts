@@ -177,33 +177,8 @@ export class Config {
 		}
 
 		// Overwrite with mapped environment variables.
-		let env_mapping = this.options.env_mapping;
-		if (env_mapping) {
-			// Use either provided mapping or default.
-			let mapping: ConfigEnvMapping = typeof env_mapping === "object" ? env_mapping : DEFAULT_ENV_MAPPING;
-
-			// Iterate mappings, check the environment variable exists and set it.
-			for (let env in mapping) {
-				let m = mapping[env];
-
-				// Determine what key to set for value.
-				let key: string;
-				if (typeof m === "string") key = m;
-				// else if (typeof m === "object") key = m.map;
-				else continue;
-
-				// Determine what value to use.
-				let value: any = process.env[env]; // || typeof m === "object" && m.default;
-
-				// Set default environment in case no value for `NODE_ENV`.
-				if (!value && env === "NODE_ENV") value = DEFAULT_NODE_ENV;
-
-				// Continue if no value is defined.
-				if (!value && value !== false) continue;
-
-				// Set value.
-				this.set(key, value);
-			}
+		if (this.options.env_mapping) {
+			this.mapEnv();
 		}
 	}
 
@@ -257,6 +232,38 @@ export class Config {
 	public loadJSON(json: any) : void {
 		for (let key in json) {
 			this.set(key, json[key]);
+		}
+	}
+
+	/**
+	 * Maps an object `env_object`, defaulting to `process.env` into instance,
+	 * using `env_mapping` map as a reference for mapping.
+	 */
+	public mapEnv(env_mapping: any = this.options.env_mapping, env_object: any = process.env) : void {
+		// Use either provided mapping or default.
+		let mapping: ConfigEnvMapping = typeof env_mapping === "object" ? env_mapping : DEFAULT_ENV_MAPPING;
+
+		// Iterate mappings, check the environment variable exists and set it.
+		for (let env in mapping) {
+			let m = mapping[env];
+
+			// Determine what key to set for value.
+			let key: string;
+			if (typeof m === "string") key = m;
+			// else if (typeof m === "object") key = m.map;
+			else continue;
+
+			// Determine what value to use.
+			let value: any = env_object[env]; // || typeof m === "object" && m.default;
+
+			// Set default environment in case no value for `NODE_ENV`.
+			if (!value && env === "NODE_ENV") value = DEFAULT_NODE_ENV;
+
+			// Continue if no value is defined.
+			if (typeof value === "undefined") continue;
+
+			// Set value.
+			this.set(key, value);
 		}
 	}
 
